@@ -7,7 +7,7 @@ bot = commands.Bot(command_prefix='sp!',
 				   help_command=None)
 Token = "ODY3MDMwOTQ1MTIyNjE1Mjk3.YPbLfQ.Yvo95f-qmLF3wmHBXDkcnpXGv_M"
 embed_blacklist = ["3 months of discord nitro free from steam", "get 3 months of discord nitro free from steam. upgrade your emoji, enjoy bigger file uploads, stand out in your favorite discords, and more."]
-patterns_blacklist = [r"i'm leaving.*skin.*http.:\/\/"]
+patterns_blacklist = [r"i'm leaving.*skin.*https:\/\/", r"i'm leaving.*skin.*http:\/\/"]
 reasons = ["blacklist.link:{}", "blacklist.embed:{}", "blacklist.pattern:{}"]
 
 with open("blacklist.txt") as file:
