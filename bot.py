@@ -34,7 +34,7 @@ async def on_message(message):
 	await bot.process_commands(message)
 	index = 0
 	for elem in blacklist:
-		if elem in message.content:
+		if elem in message.content and elem != "":
 			return await delete(message, index, 0, 0, "message.content")
 		index += 1
 	index = 0
@@ -44,7 +44,7 @@ async def on_message(message):
 	for elem in embed_blacklist:
 		indexx = 0
 		for embed in message.embeds:
-			if elem in embed.title.lower():
+			if elem in embed.title.lower() and elem != "":
 				return await delete(message, index, indexx, 1, "title")
 			indexx += 1
 		index += 1
@@ -52,7 +52,7 @@ async def on_message(message):
 	for elem in embed_blacklist:
 		indexx = 0
 		for embed in message.embeds:
-			if elem in embed.description.lower():
+			if elem in embed.description.lower() and elem != "":
 				return await delete(message, index, indexx, 1, "description")
 			indexx += 1
 		index += 1
