@@ -1,6 +1,5 @@
 import discord, asyncio, re
 from discord.ext import commands
-import requests as rq
 
 bot = commands.Bot(command_prefix='sp!',
 				   intents=discord.Intents().all(),
