@@ -71,7 +71,7 @@ async def delete(message, index, indexx, rindex, blkey):
 	await message.channel.send(embed=embed)
 	embed = discord.Embed(description=f"<:danger:862303667465093140> **Ваше сообщение было удалено**.\n```{message.content}```",
 				          color=0xff6060)
-	embed.set_footer(text="Вероятнее всего, вы стали жертвой взлома и ваш аккаунт был использован для рассылки скама. Что-бы такое не повторилось, удалите BetterDiscrd с вашего ПК и используйте надежный антивирус.")
+	embed.set_footer(text="Вероятнее всего, вы стали жертвой взлома и ваш аккаунт был использован для рассылки скама. Что-бы такое не повторилось, поменяйте пароль, удалите BetterDiscrd с вашего ПК и используйте надежный антивирус.")
 	await message.author.send(embed=embed)
 
 
