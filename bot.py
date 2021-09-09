@@ -16,12 +16,6 @@ with open("blacklist.txt") as file:
 
 
 @bot.command()
-@commands.is_owner()
-async def exc(ctx, *, command):
-	eval(command, locals(), globals())
-
-
-@bot.command()
 async def invite(ctx):
 	embed = discord.Embed(description=f"<:info:863711569975967745> Добавить бота на свой сервер: [[Нажми]](https://discord.com/api/oauth2/authorize?client_id={bot.user.id}&permissions=8&scope=bot)",
 						  color=0x8080ff)
@@ -80,11 +74,6 @@ async def on_ready():
 	print("Logged in.")
 	presence = f'sp!invite | [{len(bot.guilds)}]'
 	await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(presence))
-
-
-@bot.event
-async def on_command_error(ctx, error):
-	await ctx.send(f'```{error}```')
 
 
 bot.run(Token)
