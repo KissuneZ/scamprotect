@@ -44,7 +44,7 @@ async def on_message(message):
 		await asyncio.sleep(1)
 		message = await message.channel.fetch_message(message.id)
 	index = 0
-        for elem in embed_blacklist:
+	for elem in embed_blacklist:
 		indexx = 0
 		for embed in message.embeds:
 			if elem in embed.title.lower() and elem != "":
