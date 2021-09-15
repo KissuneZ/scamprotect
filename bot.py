@@ -61,7 +61,6 @@ async def on_message(message):
 	await bot.process_commands(message)
 	await scan_message(message)
 
-
 async def scan_message(message):
 	index = 0
 	for elem in blacklist:
@@ -76,7 +75,6 @@ async def scan_message(message):
 	if not message.embeds and "http" in message.content:
 		await asyncio.sleep(1)
 		message = await message.channel.fetch_message(message.id)
-	index = 0
 	for embed in message.embeds:
 		if await check_embed(embed, message):
 			return
@@ -89,13 +87,11 @@ async def check_embed(embed, message):
 		try:
 			if elem in embed.title.lower() and elem != "":
 				return await delete(message, index, indexx, 1, "title")
-			indexx += 1
 		except:
 			return False
 		try:
 			if elem in embed.description.lower() and elem != "":
 				return await delete(message, index, indexx, 1, "description")
-			indexx += 1
 		except:
 			return False
 		index += 1
