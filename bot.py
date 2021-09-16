@@ -1,4 +1,4 @@
-import discord, asyncio, re
+import discord, asyncio, re, pathlib
 from discord.ext import commands
 
 bot = commands.Bot(command_prefix='~',
@@ -19,6 +19,7 @@ reasons = ["blacklist.link: {}", "blacklist.embed: {}", "blacklist.pattern: {}"]
 with open("blacklist.txt") as file:
 	_text_ = file.read()
 	blacklist = _text_.split("\n")
+unix = int(pathlib.Path('bot.py').stat().st_mtime)
 
 
 @bot.command()
@@ -40,18 +41,19 @@ async def help(ctx):
 async def about(ctx):
 	embed = discord.Embed(color=0x8080ff,
 			      title="Информация",
-			      description="""
+			      description=f"""
 <:info:863711569975967745> Данный бот предназначен для защиты вашего сервера от скама с «Бесплатным Nitro на 3 месяца от Steam» и людьми якобы раздающими свой инвентарь CS:GO. Если вы увидите подобные сообщения, не ведитесь на них!
 
 Что-бы ваш аккаунт не взломали, не используйте BetterDiscord и не загружайте подозрительное ПО. Если вас уже взломали, удалите BetterDiscord с вашего ПК, поменяйте пароль и установите надежный антивирус (Например, [Kaspersky](https://kaspersky.ru)).
 
+**Версия от**: [<t:{unix}>](https://github.com/ezz-dev/scamprotect)
 **Разработчик**: https://github.com/Sweety187
 **Исходный код**: https://github.com/ezz-dev/scamprotect
 **Наш сервер**: https://discord.gg/GpedR6jeZR
 **Пожертвовать**: https://qiwi.com/n/XF765
 """)
 	embed.set_footer(text="Спасибо, что используете нашего бота!")
-	embed.set_image(url="https://media.discordapp.net/attachments/832662675963510827/885512255603605544/demo2.PNG")
+	embed.set_image(url="https://media.discordapp.net/attachments/832662675963510827/888101822370308117/unknown.png")
 	await ctx.send(embed=embed)
 
 
