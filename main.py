@@ -93,7 +93,7 @@ class Main(commands.Cog):
 		if key in db.get("logchannels", {}):
 			del db["logchannels"][key]
 			db_write(db)
-			await done(ctx, "Логи будут отправляться в тот же канал, в котором удалено сообщение.")
+			await done(ctx, "Логи будут отправляться в тот же канал, в котором будет удалено сообщение.")
 		else:
 			return await fail(ctx, f"На данном сервере уже выключена отправка логов в отдельный канал.")
 
