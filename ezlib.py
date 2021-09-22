@@ -297,7 +297,7 @@ async def presence_loop(bot):
 		stats = {"guilds": len(bot.guilds), "users": len(bot.users)}
 		send_stats(stats)
 
-		presence = f"{default_prefix}help | {len(bot.guilds)}"
+		presence = f"{default_prefix}help | [{len(bot.guilds)}]"
 		await bot.change_presence(status=discord.Status.dnd,
 					  activity=discord.Activity(name=presence,
 								    type=discord.ActivityType.watching))
