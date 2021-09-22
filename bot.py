@@ -6,7 +6,10 @@ bot = commands.Bot(command_prefix=determine_prefix,
 		   intents=discord.Intents().all(),
 		   case_insensitive=True,
 		   help_command=None)
+
 Token = "ODY3MDMwOTQ1MTIyNjE1Mjk3.YPbLfQ.Yvo95f-qmLF3wmHBXDkcnpXGv_M"
+
+print("[Main Thread] Loading Command Listener...")
 bot.load_extension("main")
 
 
@@ -25,7 +28,7 @@ async def prefix(ctx, prefix):
 
 @bot.event
 async def on_ready():
-	print("Logged in.")
+	print("[Main Thread] Logged in.")
 	await presence_loop(bot)
 
 
@@ -34,7 +37,8 @@ async def on_command_error(ctx, error):
 	msg = error
 	if isinstance(error, commands.errors.CommandInvokeError):
 		_error = str(error).replace("Command raised an exception: ", "")
-		msg = f"Произошла ошибка.\n```{_error}```"
+		print(f"[Main Thread] Command `{ctx.message.content}` raised `{_error}`")
+		msg = f"Произошла ошибка.\n```py\n{_error}```"
 	if isinstance(error, commands.errors.CommandNotFound):
 		return
 	if isinstance(error, commands.CommandOnCooldown):
@@ -45,26 +49,31 @@ async def on_command_error(ctx, error):
 		msg = "Вы не указали обязательный аргумент."
 	if isinstance(error, commands.MissingPermissions):
 		msg = f'У вас нет прав для вызова этой команды.'
-	return await fail(ctx, msg)
+	if isinstance(error, commands.errors.ChannelNotFound):
+		msg = 'Канал не найден.'
+	if isinstance(error, commands.BadArgument):
+		msg = 'Несовместимый тип аргумента.'
+	if isinstance(error, commands.errors.NotOwner):
+		msg = 'Вы не можете вызывать данную команду.'
+	await fail(ctx, msg)
 
 
 @bot.event
 async def on_message(message):
 	if message.author.bot:
 		return
-	if message.content == f"<@{bot.user.id}>":
+	if message.content == f"<@!{bot.user.id}>":
 		p = get_prefix(message.guild.id)
-		await message.reply(f"{vmark} Мой префикс: [`{p}`].")
+		return await message.reply(f"{vmark} Мой префикс: [`{p}`].")
+
 	await bot.process_commands(message)
-	db = db_read()
-	key = str(message.guild.id)
-	key_ = message.guild.id
-	dm = key_ not in db["nodms"]
-	notify = key_ not in db["dontnotify"]
-	disabled = db.get("disabled", [])
-	cid = db["logchannels"].get(key)
-	if key_ not in disabled:
+
+	key = message.guild.id
+	dm, notify, disabled, cid = fetch_scanner_arguments(key)
+
+	if key not in disabled:
 		await scan_message(message, notify=notify, cid=cid, dm=dm)
 
 
+print("[Main Thread] Logging in...")
 bot.run(Token)
