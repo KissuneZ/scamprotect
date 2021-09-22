@@ -1,7 +1,13 @@
-import discord, requests, psutil, sys, time, datetime
+import discord
+import requests
+import psutil
+import sys
+import time
+import datetime
 from discord.ext import commands
 from ezlib import *
 
+print("[Command Listener] Initializing...")
 nullTime = time.time()
 
 
@@ -93,7 +99,7 @@ class Main(commands.Cog):
 		if key in db.get("logchannels", {}):
 			del db["logchannels"][key]
 			db_write(db)
-			await done(ctx, "Логи будут отправляться в тот же канал, в котором будет удалено сообщение.")
+			await done(ctx, "Логи будут отправляться в тот же канал, в котором удалено сообщение.")
 		else:
 			return await fail(ctx, f"На данном сервере уже выключена отправка логов в отдельный канал.")
 
@@ -174,19 +180,86 @@ class Owner(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
+	@commands.command()
+	@commands.is_owner()
+	async def root(self, ctx):
+		help_ = f"""
+`~eval <code>` - Выполнить код.
+`~await <coroutine>` - Вызвать асинхронную функцию.
+`~add_pattern <pattern>` - Добавить элемент в блок-листа паттернов.
+`~set_pattern <index> <pattern>` - Заменить элемент блок-листа паттернов.
+`~remove_pattern <index>` - Удалить элемент блок-листа паттернов.
+`~add_eb <string>` - Добавить элемент в блок-листа ембедов.
+`~set_eb <index> <string>` - Заменить элемент блок-листа ембедов.
+`~remove_eb <index>` - Удалить элемент из блок-листа ембедов.
+"""
+		embed = discord.Embed(color=PRIMARY)
+		embed.add_field(name="🔧 Системные команды", value=help_)
+		embed.set_footer(text="Данные команды может вызывать только владелец бота.",
+						 icon_url=self.bot.user.avatar_url)
+		await ctx.send(embed=embed)
+
 	@commands.command(name="eval")
 	@commands.is_owner()
 	async def _eval(self, ctx, *, code):
 		result = eval(code, locals(), globals())
 		if result:
-			await ctx.send(result)
+			await ctx.send(f"```py\n{result}```")
 
 	@commands.command(name="await")
 	@commands.is_owner()
 	async def _await(self, ctx, *, code):
 		result = await eval(code, locals(), globals())
 		if result:
-			await ctx.send(result)
+			await ctx.send(f"```py\n{result}```")
+
+	@commands.command()
+	@commands.is_owner()
+	async def add_pattern(self, ctx, *, pattern):
+		patterns = get_patterns()
+		patterns.append(pattern)
+		set_patterns(patterns)
+		await done(ctx, f"Паттерн с индексом {len(patterns) + 1} установлен на значение `{pattern}`.")
+
+	@commands.command()
+	@commands.is_owner()
+	async def set_pattern(self, ctx, index: int, *, pattern):
+		patterns = get_patterns()
+		patterns[index] = pattern
+		set_patterns(patterns)
+		await done(ctx, f"Паттерн с индексом {index} установлен на значение `{pattern}`.")
+
+	@commands.command()
+	@commands.is_owner()
+	async def remove_pattern(self, ctx, *, index: int):
+		patterns = get_patterns()
+		del patterns[index]
+		set_patterns(patterns)
+		await done(ctx, f"Паттерн с индексом {index} удален.")
+
+	@commands.command()
+	@commands.is_owner()
+	async def add_eb(self, ctx, *, string):
+		ebs = get_eb()
+		ebs.append(string)
+		set_eb(ebs)
+		await done(ctx, f"Элемент с индексом {len(ebs) + 1} установлен на значение `{string}`.")
+
+	@commands.command()
+	@commands.is_owner()
+	async def set_eb(self, ctx, index: int, *, string):
+		ebs = get_ebs()
+		ebs[index] = string
+		set_eb(patterns)
+		await done(ctx, f"Элемент с индексом {index} установлен на значение `{pattern}`.")
+
+	@commands.command()
+	@commands.is_owner()
+	async def remove_eb(self, ctx, *, index: int):
+		ebs = get_eb()
+		del ebs[index]
+		set_patterns(ebs)
+		await done(ctx, f"Элемент с индексом {index} удален.")
 
 
 
@@ -223,16 +296,16 @@ Python:                   {sys.version.split('(')[0]}
 discord.py:               {discord.__version__}
 ```
 """
-		e = discord.Embed(color=0x8080ff)
+		e = discord.Embed(color=PRIMARY)
 		e.add_field(name="Состояние бота", value=data)
 		e.set_thumbnail(url="https://media.discordapp.net/attachments/832662675963510827/857631236355522650/logo.png")
 		await ctx.send(embed=e)
 
 	@commands.command()
 	async def about(self, ctx):
-		embed = discord.Embed(color=0x8080ff,
-			    	  title="Информация",
-			    	  description=f"""
+		embed = discord.Embed(color=PRIMARY,
+				      title="Информация",
+				      description=f"""
 {info} Данный бот предназначен для защиты вашего сервера от скама с «Бесплатным Nitro на 3 месяца от Steam» и людьми якобы раздающими свой инвентарь CS:GO. Если вы увидите подобные сообщения, не ведитесь на них!
 
 Что-бы ваш аккаунт не взломали, не используйте BetterDiscord и не загружайте подозрительное ПО. Если вас уже взломали, удалите BetterDiscord с вашего ПК, поменяйте пароль и установите надежный антивирус (Например, [Kaspersky](https://kaspersky.ru)).
@@ -240,6 +313,7 @@ discord.py:               {discord.__version__}
 **Версия от**: [<t:{unix}>](https://github.com/ezz-dev/scamprotect)
 **Разработчик**: https://github.com/Sweety187
 **Исходный код**: https://github.com/ezz-dev/scamprotect
+**Сайт бота**: https://scamprotect.ml
 **Наш сервер**: https://discord.gg/GpedR6jeZR
 **Пожертвовать**: https://qiwi.com/n/XF765
 """)
@@ -251,12 +325,12 @@ discord.py:               {discord.__version__}
 	async def invite(self, ctx):
 		link = f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=8&scope=bot"
 		embed = discord.Embed(description=f"{info} Добавить меня на свой сервер: [[Нажми]]({link})",
-							  color=0x8080ff)
+				      color=PRIMARY)
 		await ctx.send(embed=embed)
 
 	@commands.command()
 	async def help(self, ctx):
-		embed = discord.Embed(title="Добро пожаловать!", color=0x8080ff)
+		embed = discord.Embed(title="Добро пожаловать!", color=PRIMARY)
 		embed.add_field(name="🧭 Информация", value=f"""
 `~help` - Выводит данное сообщение.
 `~status` - Техническое состояние бота и его статистика.
@@ -277,7 +351,7 @@ discord.py:               {discord.__version__}
 `~enablenotify` - Включить уведомления на сервере.
 `~disablenotify` - Выключить уведомления на сервере.
 `~remlogs` - Отключить отправку уведомлений в отдельный канал.
-`~setlogs` - Установить канал для отправки уведомлений.
+`~setlogs <channel>` - Установить канал для отправки уведомлений.
 """.replace("~", ctx.prefix), inline=False)
 		embed.set_footer(icon_url=self.bot.user.avatar_url,
 						 text="© 2021, Ezz Development | https://github.com/ezz-dev")
@@ -290,4 +364,4 @@ def setup(bot):
 	bot.add_cog(Main(bot))
 	bot.add_cog(Owner(bot))
 	bot.add_cog(Info(bot))
- 
+	print("[Command Listener] Loaded successful.")
