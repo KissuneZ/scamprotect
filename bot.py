@@ -62,7 +62,9 @@ async def on_command_error(ctx, error):
 async def on_message(message):
 	if message.author.bot:
 		return
-	if message.content == f"<@!{bot.user.id}>":
+	
+	mentions = [f"<@!{bot.user.id}>", f"<@{bot.user.id}>"]
+	if message.content in mentions:
 		p = get_prefix(message.guild.id)
 		return await message.reply(f"{vmark} Мой префикс: [`{p}`].")
 
