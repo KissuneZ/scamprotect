@@ -51,7 +51,10 @@ class Main(commands.Cog):
 			i = 0
 			for message in messages:
 				i += 1
-				await m.edit(content=pattern.format(waiting, i, limit))
+				try:
+					await m.edit(content=pattern.format(waiting, i, limit))
+				except:
+					return await fail(ctx, "Отменено.")
 				async with ctx.typing():
 					if await scan_message(message, **args):
 						deleted += 1
@@ -77,7 +80,10 @@ class Main(commands.Cog):
 				messages = await channel.history(limit=limit).flatten()
 				for message in messages:
 					i += 1
-					await m.edit(content=pattern.format(waiting, i, limit_))
+					try:
+						await m.edit(content=pattern.format(waiting, i, limit_))
+					except:
+						return await fail(ctx, "Отменено.")
 					async with ctx.typing():
 						if await scan_message(message, **args):
 							deleted += 1
