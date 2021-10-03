@@ -412,7 +412,7 @@ discord.py:               {discord.__version__}
 `~report <message>` - Пожаловаться на ссылку/сообщение.
 """.replace("~", prefix(ctx)), inline=False)
 		embed.add_field(name="⚙️ Настройка", value=f"""
-`~prefix` - Изменить префикс бота на этом сервере.
+`~prefix <prefix>` - Изменить префикс бота на этом сервере.
 `~enable scan` - Включить сканирование сообщений.
 `~enable dms` - Включить уведомления в личных сообщениях.
 `~enable notify` - Включить уведомления на сервере.
