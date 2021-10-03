@@ -4,10 +4,17 @@ import psutil
 import sys
 import time
 import datetime
+import logging
 from discord.ext import commands
-from ezlib import *
+from wolverine import *
+from os import listdir
+from os.path import isfile, join
+from typing import Union
 
-print("[Command Listener] Initializing...")
+
+logging.basicConfig(filename="./logs/latest.log", filemode="a",
+		    format='[%(asctime)s | %(name)s / %(levelname)s]: %(message)s', level=logging.INFO)
+logger = logging.getLogger("CommandListener")
 nullTime = time.time()
 
 
@@ -18,17 +25,38 @@ class Main(commands.Cog):
 		self.bot = bot
 
 	@commands.command()
+	@commands.has_permissions(manage_guild=True)
+	@commands.cooldown(1, 5, commands.BucketType.guild)
+	async def prefix(self, ctx, prefix):
+		if len(prefix) > 5:
+			return await fail(ctx, "Префикс не может быть длиннее 5 символов.")
+		if "`" in prefix:
+			return await fail(ctx, "Префикс содержит недопустимый символ.")
+		key = ctx.guild.id
+		set_prefix(key, prefix)
+		await done(ctx, f"Префикс для этого сервера иземенен на `{prefix}`.")
+
+	@commands.command()
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(3, 10, commands.BucketType.guild)
 	async def clear(self, ctx, limit: int):
 		if 100 >= limit >= 10:
+			m = await ctx.send(pattern.format(waiting, 0, limit))
 			messages = await ctx.channel.history(limit=limit).flatten()
 			deleted = 0
+			key = ctx.guild.id
+			args = fetch_scanner_arguments(key)
+			args.update(manual_scanner_args)
+			i = 0
 			for message in messages:
-				if await scan_message(message, notify=False):
-					deleted += 1
-			await done(ctx, f"Удалено {deleted} сообщений.")
+				i += 1
+				await m.edit(content=pattern.format(waiting, i, limit))
+				async with ctx.typing():
+					if await scan_message(message, **args):
+						deleted += 1
+
+			await m.edit(content=f"{vmark} Завершено. [{i} / {limit}]\n{vmark} Удалено {deleted} сообщений.")
 		else:
 			await fail(ctx, f"Количество сообщений должно быть в пределах от 10 до 100.")
 
@@ -39,12 +67,22 @@ class Main(commands.Cog):
 	async def clearall(self, ctx, limit: int):
 		if 100 >= limit >= 10:
 			deleted = 0
+			limit_ = limit * len(ctx.guild.text_channels)
+			key = ctx.guild.id
+			args = fetch_scanner_arguments(key)
+			args.update(manual_scanner_args)
+			m = await ctx.send(pattern.format(waiting, 0, limit_))
+			i = 0
 			for channel in ctx.guild.text_channels:
 				messages = await channel.history(limit=limit).flatten()
 				for message in messages:
-					if await scan_message(message, notify=False):
-						deleted += 1
-			await done(ctx, f"Удалено {deleted} сообщений.")
+					i += 1
+					await m.edit(content=pattern.format(waiting, i, limit_))
+					async with ctx.typing():
+						if await scan_message(message, **args):
+							deleted += 1
+
+			await m.edit(content=f"{vmark} Завершено. [{i} / {limit_}]\n{vmark} Удалено {deleted} сообщений.")
 		else:
 			await fail(ctx, f"Количество сообщений должно быть в пределах от 10 до 100.")
 
@@ -60,118 +98,78 @@ class Main(commands.Cog):
 		requests.post(hook, json=payload)
 		await done(ctx, "Ваше сообщение отправлено на сервер поддержки.")
 
-
 	@commands.command()
 	@commands.has_permissions(manage_guild=True)
-	@commands.cooldown(1, 30, commands.BucketType.guild)
-	async def disable(self, ctx):
-		db = db_read()
-		disabled = db.get("disabled", [])
-		key = ctx.guild.id
-		if key not in disabled:
-			db["disabled"].append(key)
-			db_write(db)
-			await done(ctx, "Сканирование сообщений выключено.")
+	@commands.cooldown(1, 5, commands.BucketType.guild)
+	async def enable(self, ctx, module):
+		if module in ["dms", "notify", "scan"]:
+			db = db_read()
+			key = ctx.guild.id
+			if module == "scan":
+				if key in db.get("disabled", []):
+					db["disabled"].remove(key)
+					db_write(db)
+					return await done(ctx, "Защита включена.")
+			if module == "dms":
+				if key in db.get("nodms"):
+					db["nodms"].remove(key)
+					db_write(db)
+					return await done(ctx, "Отправка личных сообщений включена.")
+			if module == "notify":
+				if key in db.get("nodms"):
+					db["dontnotify"].remove(key)
+					db_write(db)
+					return await done(ctx, "Отправка уведомлений включена.")
+			await fail(ctx, "Данный модуль уже включен.")
 		else:
-			return await fail(ctx, f"На данном сервере уже отключено сканирование сообщений.")
-
+			await fail(ctx, "Укажите правильный модуль для включения.")
 
 	@commands.command()
 	@commands.has_permissions(manage_guild=True)
-	@commands.cooldown(1, 30, commands.BucketType.guild)
-	async def enable(self, ctx):
-		db = db_read()
-		key = ctx.guild.id
-		if key in db.get("disabled", []):
-			db["disabled"].remove(key)
-			db_write(db)
-			await done(ctx, "Сканирование сообщений включено.")
+	@commands.cooldown(1, 5, commands.BucketType.guild)
+	async def disable(self, ctx, module):
+		if module in ["dms", "notify", "scan"]:
+			db = db_read()
+			key = ctx.guild.id
+			if module == "scan":
+				if key not in db.get("disabled", []):
+					db["disabled"].append(key)
+					db_write(db)
+					return await done(ctx, "Защита отключена.")
+			if module == "dms":
+				if key not in db.get("nodms"):
+					db["nodms"].append(key)
+					db_write(db)
+					return await done(ctx, "Отправка личных сообщений выключена.")
+			if module == "notify":
+				if key not in db.get("nodms"):
+					db["dontnotify"].append(key)
+					db_write(db)
+					return await done(ctx, "Отправка уведомлений выключена.")
+			await fail(ctx, "Данный модуль уже выключен.")
 		else:
-			return await fail(ctx, f"На данном сервере уже включено сканирование сообщений.")
+			await fail(ctx, "Укажите правильный модуль для выключения.")
 
-
-	@commands.command()
+	@commands.command(aliases=["notify"])
 	@commands.has_permissions(manage_guild=True)
-	@commands.cooldown(1, 30, commands.BucketType.guild)
-	async def remlogs(self, ctx):
+	@commands.cooldown(1, 5, commands.BucketType.guild)
+	async def notifications(self, ctx, arg: Union[discord.TextChannel, str]):
 		db = db_read()
-		key = ctx.guild.id
-		if key in db.get("logchannels", {}):
-			del db["logchannels"][key]
-			db_write(db)
-			await done(ctx, "Логи будут отправляться в тот же канал, в котором удалено сообщение.")
-		else:
-			return await fail(ctx, f"На данном сервере уже выключена отправка логов в отдельный канал.")
+		key = str(ctx.guild.id)
 
-	@commands.command()
-	@commands.has_permissions(manage_guild=True)
-	@commands.cooldown(1, 30, commands.BucketType.guild)
-	async def setlogs(self, ctx, channel: discord.TextChannel):
-		db = db_read()
-		key: int = ctx.guild.id
+		if arg in ["off", "remove"]:
+			if key in db.get("logchannels", {}):
+				del db["logchannels"][key]
+				db_write(db)
+				return await done(ctx, "Отправка уведомлений в отдельный канал отключена.")
+			else:
+				return await fail(ctx, "На этом сервере ещё не назначен канал для уведомлений.")
+		channel: discord.TextChannel = arg
 		cid = channel.id
 		db["logchannels"].get(key)
 		db["logchannels"][key] = cid
 		db_write(db)
-		await done(ctx, f"Логи будут отправляться в канал {channel.mention}.")
-
-
-	@commands.command()
-	@commands.has_permissions(manage_guild=True)
-	@commands.cooldown(1, 30, commands.BucketType.guild)
-	async def disabledms(self, ctx):
-		db = db_read()
-		disabled = db.get("nodms", [])
-		key = ctx.guild.id
-		if key not in disabled:
-			db["nodms"].append(key)
-			db_write(db)
-			await done(ctx, "Отправка личных сообщений пользователям отключена.")
-		else:
-			return await fail(ctx, f"На данном сервере уже отключена отправка личных сообщений пользователям.")
-
-	@commands.command()
-	@commands.has_permissions(manage_guild=True)
-	@commands.cooldown(1, 30, commands.BucketType.guild)
-	async def enabledms(self, ctx):
-		db = db_read()
-		disabled = db.get("nodms", [])
-		key = ctx.guild.id
-		if key in disabled:
-			db["nodms"].remove(key)
-			db_write(db)
-			await done(ctx, "Отправка личных сообщений пользователям включена.")
-		else:
-			return await fail(ctx, f"На данном сервере уже включена отправка личных сообщений пользователям.")
-
-
-	@commands.command()
-	@commands.has_permissions(manage_guild=True)
-	@commands.cooldown(1, 30, commands.BucketType.guild)
-	async def disablenotify(self, ctx):
-		db = db_read()
-		disabled = db.get("dontnotify", [])
-		key = ctx.guild.id
-		if key not in disabled:
-			db["dontnotify"].append(key)
-			db_write(db)
-			await done(ctx, "Уведомления об удалении сообщений на сервере выключены.")
-		else:
-			return await fail(ctx, f"На данном сервере уже выключены уведомления об удалении сообщений.")
-
-	@commands.command()
-	@commands.has_permissions(manage_guild=True)
-	@commands.cooldown(1, 30, commands.BucketType.guild)
-	async def enablenotify(self, ctx):
-		db = db_read()
-		disabled = db.get("dontnotify", [])
-		key = ctx.guild.id
-		if key in disabled:
-			db["dontnotify"].remove(key)
-			db_write(db)
-			await done(ctx, "Уведомления об удалении сообщений на сервере включены.")
-		else:
-			return await fail(ctx, f"На данном сервере уже включены уведомления об удалении сообщений.")
+		await done(ctx, f"Уведомления будут отправляться в канал {channel.mention}.")
 
 
 
@@ -185,57 +183,111 @@ class Owner(commands.Cog):
 	async def root(self, ctx):
 		help_ = f"""
 `~eval <code>` - Выполнить код.
+`~exec <code>` - Выполнить код (динамически).
 `~await <coroutine>` - Вызвать асинхронную функцию.
-`~add_pattern <pattern>` - Добавить элемент в блок-листа паттернов.
-`~set_pattern <index> <pattern>` - Заменить элемент блок-листа паттернов.
-`~remove_pattern <index>` - Удалить элемент блок-листа паттернов.
 `~add_eb <string>` - Добавить элемент в блок-листа ембедов.
 `~set_eb <index> <string>` - Заменить элемент блок-листа ембедов.
 `~remove_eb <index>` - Удалить элемент из блок-листа ембедов.
-"""
+`~servers` - Список серверв, на которых есть бот.
+`~logs` - Список лог-файлов.
+`~purge_logs` - Удалить все лог-файлы.
+`~send_log <fname>` - Отправить лог-файл в чат.
+`~dm_log <fname>` - Отправить лог-файл вам в ЛС.
+`~restart` - Перезапустить бота.
+`~shutdown` - Выключить бота.
+""".replace("~", prefix(ctx))
 		embed = discord.Embed(color=PRIMARY)
 		embed.add_field(name="🔧 Системные команды", value=help_)
-		embed.set_footer(text="Данные команды может вызывать только владелец бота.",
-						 icon_url=self.bot.user.avatar_url)
+		embed.set_footer(text="© 2021, Ezz Development | https://github.com/ezz-dev",
+				 icon_url=self.bot.user.avatar_url)
 		await ctx.send(embed=embed)
+
+	@commands.command()
+	@commands.is_owner()
+	async def servers(self, ctx):
+		servers = []
+		for guild in self.bot.guilds:
+			servers.append(f"{guild.id} | {guild.name}: {guild.member_count}")
+		string = '\n'.join(servers)
+		result = f"```{string}```"
+		await ctx.send(result)
+
+	@commands.command()
+	@commands.is_owner()
+	async def logs(self, ctx):
+		path = "./logs/"
+		files = [f for f in listdir(path)]
+		string = '\n'.join(files)
+		result = f"```{string}```"
+		await ctx.send(result)
+
+	@commands.command()
+	@commands.is_owner()
+	async def purge_logs(self, ctx):
+		path = "./logs/"
+		files = [f for f in listdir(path)]
+		deleted = 0
+		for file in files:
+			try:
+				os.remove(path + file)
+				deleted += 1
+			except:
+				continue
+		await done(ctx, f"Удалено {deleted} файлов.")
+
+	@commands.command()
+	@commands.is_owner()
+	async def send_log(self, ctx, fname):
+		await ctx.send(file=discord.File(fr"./logs/{fname}"))
+
+	@commands.command()
+	@commands.is_owner()
+	async def dm_log(self, ctx, fname):
+		await ctx.author.send(file=discord.File(fr"./logs/{fname}"))
+		await done(ctx, "Файл отправлен вам в личные сообщения.")
+
+	@commands.command()
+	@commands.is_owner()
+	async def shutdown(self, ctx):
+		await done(ctx, "Выключение...")
+		logger.info("Manual shudown.")
+		await self.bot.change_presence(status=discord.Status.idle,
+					       activity=discord.Activity(name="Выключение...",
+									 type=discord.ActivityType.watching))
+		await logout(self.bot)
+
+	@commands.command()
+	@commands.is_owner()
+	async def restart(self, ctx):
+		m = await ctx.send(f"{waiting} Перезапуск...")
+		logger.info("Manual restart.")
+		await self.bot.change_presence(status=discord.Status.idle,
+					       activity=discord.Activity(name="Перезапуск...",
+									 type=discord.ActivityType.watching))
+		with open(".restarted", "w+") as f:
+			f.write(f"{ctx.channel.id}:{m.id}")
+		exit_handler()
+		python = sys.executable
+		os.execl(python, python, *sys.argv)
 
 	@commands.command(name="eval")
 	@commands.is_owner()
 	async def _eval(self, ctx, *, code):
-		result = eval(code, locals(), globals())
+		result = eval(code, globals(), locals())
 		if result:
 			await ctx.send(f"```py\n{result}```")
+
+	@commands.command(name="exec")
+	@commands.is_owner()
+	async def _exec(self, ctx, *, code):
+		exec(code, globals(), locals())
 
 	@commands.command(name="await")
 	@commands.is_owner()
 	async def _await(self, ctx, *, code):
-		result = await eval(code, locals(), globals())
+		result = await eval(code, globals(), locals())
 		if result:
 			await ctx.send(f"```py\n{result}```")
-
-	@commands.command()
-	@commands.is_owner()
-	async def add_pattern(self, ctx, *, pattern):
-		patterns = get_patterns()
-		patterns.append(pattern)
-		set_patterns(patterns)
-		await done(ctx, f"Паттерн с индексом {len(patterns) + 1} установлен на значение `{pattern}`.")
-
-	@commands.command()
-	@commands.is_owner()
-	async def set_pattern(self, ctx, index: int, *, pattern):
-		patterns = get_patterns()
-		patterns[index] = pattern
-		set_patterns(patterns)
-		await done(ctx, f"Паттерн с индексом {index} установлен на значение `{pattern}`.")
-
-	@commands.command()
-	@commands.is_owner()
-	async def remove_pattern(self, ctx, *, index: int):
-		patterns = get_patterns()
-		del patterns[index]
-		set_patterns(patterns)
-		await done(ctx, f"Паттерн с индексом {index} удален.")
 
 	@commands.command()
 	@commands.is_owner()
@@ -303,66 +355,69 @@ discord.py:               {discord.__version__}
 
 	@commands.command()
 	async def about(self, ctx):
-		embed = discord.Embed(color=PRIMARY,
-			    	  title="Информация",
-			    	  description=f"""
+		embed = discord.Embed(color=PRIMARY, title="Информация",
+				      description=f"""
 {info} Данный бот предназначен для защиты вашего сервера от скама с «Бесплатным Nitro на 3 месяца от Steam» и людьми якобы раздающими свой инвентарь CS:GO. Если вы увидите подобные сообщения, не ведитесь на них!
 
-Что-бы ваш аккаунт не взломали, не используйте BetterDiscord и не загружайте подозрительное ПО. Если вас уже взломали, удалите BetterDiscord с вашего ПК, поменяйте пароль и установите надежный антивирус (Например, [Kaspersky](https://kaspersky.ru)).
+{danger} Что-бы ваш аккаунт не взломали, не используйте BetterDiscord и не загружайте подозрительное ПО. Если же вас уже взломали, рекомендуем вам выполнить следующие действия:
+ㆍУдалите BetterDiscord с вашего устройства;
+ㆍПереустановите клиент Discord;
+ㆍПоменяйте пароли всех ваших аккаунтов;
+ㆍУстановите надежный антивирус и выполните полную проверку устройства.
 
-**Версия от**: [<t:{unix}>](https://github.com/ezz-dev/scamprotect)
-**Разработчик**: https://github.com/Sweety187
-**Исходный код**: https://github.com/ezz-dev/scamprotect
-**Сайт бота**: https://scamprotect.ml
+Берегите себя!
+
+**Версия ядра**: [Wolverine {version()}](https://scamprotect.ml/wolverine)
+**Разработчик**: [xshadowsexy#0141](https://discord.com/users/811976103673593856)
+**Исходный код**: [Устаревшая публичная версия](https://github.com/ezz-dev/scamprotect)
+**Сайт бота**: https://scamprotect.ml/
 **Наш сервер**: https://discord.gg/GpedR6jeZR
 **Пожертвовать**: https://qiwi.com/n/XF765
 """)
 		embed.set_footer(text="Спасибо, что используете нашего бота!")
-		embed.set_image(url="https://media.discordapp.net/attachments/832662675963510827/888101822370308117/unknown.png")
 		await ctx.send(embed=embed)
 
 	@commands.command()
 	async def invite(self, ctx):
 		link = f"https://discord.com/api/oauth2/authorize?client_id={self.bot.user.id}&permissions=8&scope=bot"
 		embed = discord.Embed(description=f"{info} Добавить меня на свой сервер: [[Нажми]]({link})",
-							  color=PRIMARY)
+				      color=PRIMARY)
 		await ctx.send(embed=embed)
 
 	@commands.command()
 	async def support(self, ctx):
 		embed = discord.Embed(description=f"{info} Сервер поддержки: [[Присоединиться]]({support})",
-							  color=PRIMARY)
+				      color=PRIMARY)
 		await ctx.send(embed=embed)
 
 	@commands.command()
 	async def help(self, ctx):
-		warning = f">>> {danger} Пожалуйста, если вы обнаружите сообщение, которое является скамом, но не было обнаружено ботом, отправте его нам. Так вы помогаете нам улучшать сервис и защищать вас. Поймите, что мы не можем предугадать структуру и содержание нового скам-сообщения и только с вашей помощью мы можем обеспечить полноценную работу сервиса."
-		embed = discord.Embed(title="Добро пожаловать!", description=warning, color=PRIMARY)
+		embed = discord.Embed(title="Добро пожаловать!", color=PRIMARY)
 		embed.add_field(name="🧭 Информация", value=f"""
 `~help` - Выводит данное сообщение.
 `~status` - Техническое состояние бота и его статистика.
 `~invite` - Получить ссылку на добавление бота.
 `~about` - Информация о боте и ссылки на разработчиков.
 `~support` - Сервер поддержки.
-""".replace("~", ctx.prefix), inline=False)
+""".replace("~", prefix(ctx)), inline=False)
 		embed.add_field(name="🛠️ Инструменты", value=f"""
 `~clear <limit>` - Просканировать N сообщений в текущем канале.
 `~clearall <limit>` - Просканировать N сообщений во всех каналах.
 `~report <message>` - Пожаловаться на ссылку/сообщение.
-""".replace("~", ctx.prefix), inline=False)
+""".replace("~", prefix(ctx)), inline=False)
 		embed.add_field(name="⚙️ Настройка", value=f"""
 `~prefix` - Изменить префикс бота на этом сервере.
-`~enable` - Включить сканирование сообщений.
-`~disable` - Выключить сканирование сообщений.
-`~enabledms` - Включить уведомления в личных сообщениях.
-`~disabledms` - Выключить уведомления в личных сообщениях.
-`~enablenotify` - Включить уведомления на сервере.
-`~disablenotify` - Выключить уведомления на сервере.
-`~remlogs` - Отключить отправку уведомлений в отдельный канал.
-`~setlogs <channel>` - Установить канал для отправки уведомлений.
-""".replace("~", ctx.prefix), inline=False)
+`~enable scan` - Включить сканирование сообщений.
+`~enable dms` - Включить уведомления в личных сообщениях.
+`~enable notify` - Включить уведомления на сервере.
+`~disable scan` - Выключить сканирование сообщений.
+`~disable dms` - Выключить уведомления в личных сообщениях.
+`~disable notify` - Выключить уведомления на сервере.
+`~notify remove` - Отключить отправку уведомлений в отдельный канал.
+`~notify <channel>` - Установить канал для отправки уведомлений.
+""".replace("~", prefix(ctx)), inline=False)
 		embed.set_footer(icon_url=self.bot.user.avatar_url,
-						 text="© 2021, Ezz Development | https://github.com/ezz-dev")
+				 text="© 2021, Ezz Development | https://github.com/ezz-dev")
 		await ctx.send(embed=embed)
 
 
@@ -372,4 +427,4 @@ def setup(bot):
 	bot.add_cog(Main(bot))
 	bot.add_cog(Owner(bot))
 	bot.add_cog(Info(bot))
-	print("[Command Listener] Loaded successful.")
+	logger.info("Loaded successful.")
