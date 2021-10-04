@@ -12,10 +12,7 @@ import shutil
 import atexit
 
 
-reasons = ["Ембед: {}", "Счёт ИИ: {}"]
-unix    = int(pathlib.Path('bot.py').stat().st_mtime)
-
-__version__ = "6.2.2"
+__version__ = "6.2.3"
 
 info    = "<:info:863711569975967745>"
 danger  = "<:danger:862303667465093140>"
@@ -34,6 +31,8 @@ prefixes       = {}
 default_prefix = "~"
 sessioncache   = {"sc": 0, "dmc": 0}
 pattern        = "{} Сканирование... [{} / {}]"
+
+reasons        = ["Ембед: {}", "Счёт ИИ: {}"]
 
 support = "https://discord.gg/GpedR6jeZR"
 hook = "https://discord.com/api/webhooks/888444735289696317/9Y8C-BlwF-27VdrZDvO3CLxFNlqqkh2S29lEQidTntudhSk3A-0ecPU0RxtVEViZZSM2"
@@ -143,7 +142,6 @@ def send_session():
 
 
 def send_stats(data: dict):
-	logger.info("Sending statistics...")
 	api_interact("setStats", data)
 	send_session()
 
@@ -184,9 +182,9 @@ def fetch_scanner_arguments(key):
 	db = db_read()
 	dm = key not in db["nodms"]
 	notify = key not in db["dontnotify"]
-	disabled = key not in db.get("disabled", False)
+	disabled = key in db.get("disabled", False)
 	cid = db["logchannels"].get(str(key))
-	data = {"dm": dm, "notify": notify, "disabled": disabled, "cid": cid}
+	data = {"dm": dm, "notify": notify, "disabled": disabled, "cid": cid, "noscup": False}
 	return data
 
 
@@ -240,7 +238,7 @@ async def ai_scanner(message, **args):
 
 
 async def scan_message(message, **args):
-	if not args.get("noscup"):
+	if not args["noscup"]:
 		sc_up()
 
 	if await ai_scanner(message, **args):
@@ -278,9 +276,9 @@ async def check_embed(embed, message, indexx, **args):
 async def delete(message, index, indexx, rindex, blkey, **args):
 	reason = reasons[rindex].format(f"{blkey}: {[indexx]}: {index}")
 	embed = discord.Embed(description=f"{danger} Удалено сообщение от пользователя {message.author.mention}.\n » **Причина**: **`{reason}`**.",
-			       		  color=SECONDARY)
+			      color=SECONDARY)
 	embed_dm = discord.Embed(description=f"{danger} **Ваше сообщение было удалено**.\n```{message.content}```",
-			       		     color=SECONDARY)
+				 color=SECONDARY)
 	embed_dm.set_footer(text="Вероятнее всего, вы стали жертвой взлома и ваш аккаунт был использован для рассылки скама. Что-бы такое не повторилось, удалите BetterDiscord с вашего ПК, поменяйте пароль и используйте надежный антивирус.")
 	try:
 		await message.delete()
@@ -325,7 +323,7 @@ async def is_restarted(bot):
 async def auto_restart(bot):
 	uptime = 0
 	while True:
-		if uptime >= 60:
+		if uptime >= 240:
 			logger.info("Restarting...")
 			await bot.change_presence(status=discord.Status.idle,
 						  activity=discord.Activity(name="Перезапуск...",
@@ -365,4 +363,3 @@ async def presence_loop(bot):
 					  activity=discord.Activity(name=presence,
 								    type=discord.ActivityType.watching))
 		await asyncio.sleep(60)
-
