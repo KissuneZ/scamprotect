@@ -41,6 +41,7 @@ class Main(commands.Cog):
 	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(3, 60, commands.BucketType.guild)
 	async def clear(self, ctx, limit: int):
+		return await fail(ctx, "Эта команда временно отключена.")
 		if 100 >= limit >= 1:
 			m = await ctx.send(pattern.format(waiting, 0, limit))
 			messages = await ctx.channel.history(limit=limit).flatten()
@@ -70,6 +71,7 @@ class Main(commands.Cog):
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(1, 300, commands.BucketType.guild)
+	return await fail(ctx, "Эта команда временно отключена.")
 	async def clearall(self, ctx, limit: int):
 		if 100 >= limit >= 1:
 			deleted = 0
