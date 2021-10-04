@@ -35,13 +35,13 @@ async def on_ready():
 async def on_command_error(ctx, error):
 	msg = error
 
+	if isinstance(error, commands.errors.CommandNotFound):
+		return
+	
 	if isinstance(error, commands.errors.CommandInvokeError):
 		_error = str(error).replace("Command raised an exception: ", "")
 		logger.error(f"`{_error}` was raised while executing `{ctx.message.content}`.")
 		msg = f"Произошла ошибка.\n```py\n{_error}```"
-
-	if isinstance(error, commands.errors.CommandNotFound):
-		return
 
 	if isinstance(error, commands.CommandOnCooldown):
 		msg = f"Команда будет доступна через {int(error.retry_after)} секунд."
@@ -84,7 +84,7 @@ async def on_message(message):
 	key = message.guild.id
 	args = fetch_scanner_arguments(key)
 
-	if args["disabled"]:
+	if not args["disabled"]:
 		await scan_message(message, **args)
 
 
