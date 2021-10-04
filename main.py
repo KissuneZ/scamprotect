@@ -71,8 +71,8 @@ class Main(commands.Cog):
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(1, 300, commands.BucketType.guild)
-	return await fail(ctx, "Эта команда временно отключена.")
 	async def clearall(self, ctx, limit: int):
+		return await fail(ctx, "Эта команда временно отключена.")
 		if 100 >= limit >= 1:
 			deleted = 0
 			limit_ = limit * len(ctx.guild.text_channels)
