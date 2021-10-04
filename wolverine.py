@@ -12,7 +12,7 @@ import shutil
 import atexit
 
 
-__version__ = "6.2.3"
+__version__ = "6.2.4"
 
 info    = "<:info:863711569975967745>"
 danger  = "<:danger:862303667465093140>"
@@ -279,7 +279,7 @@ async def delete(message, index, indexx, rindex, blkey, **args):
 			      color=SECONDARY)
 	embed_dm = discord.Embed(description=f"{danger} Ваше сообщение было удалено.\n```{message.content}```",
 				 color=SECONDARY)
-	embed_dm.set_footer(text=f"Причина: {reason}. | {message.guild.name}", icon_url=message.guild.avatar_url)
+	embed_dm.set_footer(text=f"Причина: {reason}. | {message.guild.name}", icon_url=message.guild.icon_url)
 	try:
 		await message.delete()
 		if args["notify"]:
