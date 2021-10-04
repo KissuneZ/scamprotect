@@ -35,10 +35,10 @@ pattern        = "{} Сканирование... [{} / {}]"
 reasons        = ["Ембед: {}", "Счёт ИИ: {}"]
 
 support = "https://discord.gg/GpedR6jeZR"
-hook = "https://discord.com/api/webhooks/888444735289696317/9Y8C-BlwF-27VdrZDvO3CLxFNlqqkh2S29lEQidTntudhSk3A-0ecPU0RxtVEViZZSM2"
+hook    = "https://discord.com/api/webhooks/888444735289696317/9Y8C-BlwF-27VdrZDvO3CLxFNlqqkh2S29lEQidTntudhSk3A-0ecPU0RxtVEViZZSM2"
 
-logger = None
-bot_   = discord.ext.commands.Bot(None)
+logger  = None
+bot_    = discord.ext.commands.Bot(None)
 
 commands_ = discord.ext.commands
 manual_scanner_args = {"notify": False, "dm": False, "noscup": True}
@@ -123,12 +123,12 @@ def get_global_session():
 	external_session = get_remote_session()
 	local_session    = get_session()
 
-	local_sc  = local_session["sc"]
-	local_dmc = local_session["dmc"]
+	local_sc         = local_session["sc"]
+	local_dmc        = local_session["dmc"]
 
-	external_sc  = external_session["sc"]
-	external_dmc = external_session["dmc"]
-	
+	external_sc      = external_session["sc"]
+	external_dmc     = external_session["dmc"]
+
 	sc  = external_sc  + local_sc
 	dmc = external_dmc + local_dmc
 
@@ -277,9 +277,9 @@ async def delete(message, index, indexx, rindex, blkey, **args):
 	reason = reasons[rindex].format(f"{blkey}: {[indexx]}: {index}")
 	embed = discord.Embed(description=f"{danger} Удалено сообщение от пользователя {message.author.mention}.\n » **Причина**: **`{reason}`**.",
 			      color=SECONDARY)
-	embed_dm = discord.Embed(description=f"{danger} **Ваше сообщение было удалено**.\n```{message.content}```",
+	embed_dm = discord.Embed(description=f"{danger} Ваше сообщение было удалено.\n```{message.content}```",
 				 color=SECONDARY)
-	embed_dm.set_footer(text="Вероятнее всего, вы стали жертвой взлома и ваш аккаунт был использован для рассылки скама. Что-бы такое не повторилось, удалите BetterDiscord с вашего ПК, поменяйте пароль и используйте надежный антивирус.")
+	embed_dm.set_footer(text=f"Причина: {reason}. | {message.guild.name}", icon_url=message.guild.avatar_url)
 	try:
 		await message.delete()
 		if args["notify"]:
@@ -290,8 +290,8 @@ async def delete(message, index, indexx, rindex, blkey, **args):
 			if not channel or not args["cid"]:
 				channel  = message.channel
 			await channel.send(embed=embed)
-			if args["dm"]:
-				await message.author.send(embed=embed_dm)
+		if args["dm"]:
+			await message.author.send(embed=embed_dm)
 	except Exception as e:
 		logger.error(e)
 		return False
