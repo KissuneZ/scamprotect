@@ -39,9 +39,9 @@ class Main(commands.Cog):
 	@commands.command()
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
-	@commands.cooldown(3, 10, commands.BucketType.guild)
+	@commands.cooldown(3, 60, commands.BucketType.guild)
 	async def clear(self, ctx, limit: int):
-		if 100 >= limit >= 10:
+		if 100 >= limit >= 1:
 			m = await ctx.send(pattern.format(waiting, 0, limit))
 			messages = await ctx.channel.history(limit=limit).flatten()
 			deleted = 0
@@ -56,8 +56,9 @@ class Main(commands.Cog):
 				except:
 					return await fail(ctx, "Отменено.")
 				async with ctx.typing():
-					if await scan_message(message, **args):
-						deleted += 1
+					if "http" in message.content:
+						if await scan_message(message, **args):
+							deleted += 1
 
 			await m.edit(content=f"{vmark} Завершено. [{i} / {limit}]\n{vmark} Удалено {deleted} сообщений.")
 		else:
@@ -66,9 +67,9 @@ class Main(commands.Cog):
 	@commands.command()
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
-	@commands.cooldown(1, 30, commands.BucketType.guild)
+	@commands.cooldown(1, 300, commands.BucketType.guild)
 	async def clearall(self, ctx, limit: int):
-		if 100 >= limit >= 10:
+		if 100 >= limit >= 1:
 			deleted = 0
 			limit_ = limit * len(ctx.guild.text_channels)
 			key = ctx.guild.id
@@ -85,12 +86,13 @@ class Main(commands.Cog):
 					except:
 						return await fail(ctx, "Отменено.")
 					async with ctx.typing():
-						if await scan_message(message, **args):
-							deleted += 1
+						if "http" in message.content:
+							if await scan_message(message, **args):
+								deleted += 1
 
 			await m.edit(content=f"{vmark} Завершено. [{i} / {limit_}]\n{vmark} Удалено {deleted} сообщений.")
 		else:
-			await fail(ctx, f"Количество сообщений должно быть в пределах от 10 до 100.")
+			await fail(ctx, f"Количество сообщений должно быть в пределах от 1 до 100.")
 
 	@commands.command()
 	@commands.cooldown(1, 30, commands.BucketType.user)
