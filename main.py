@@ -36,12 +36,12 @@ class Main(commands.Cog):
 		set_prefix(key, prefix)
 		await done(ctx, f"Префикс для этого сервера иземенен на `{prefix}`.")
 
-	@commands.command()
+	@commands.command(enabled=False)
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(3, 60, commands.BucketType.guild)
 	async def clear(self, ctx, limit: int):
-		return await fail(ctx, "Эта команда временно отключена.")
+		return
 		if 100 >= limit >= 1:
 			m = await ctx.send(pattern.format(waiting, 0, limit))
 			messages = await ctx.channel.history(limit=limit).flatten()
@@ -67,12 +67,12 @@ class Main(commands.Cog):
 		else:
 			await fail(ctx, f"Количество сообщений должно быть в пределах от 10 до 100.")
 
-	@commands.command()
+	@commands.command(enabled=False)
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(1, 300, commands.BucketType.guild)
 	async def clearall(self, ctx, limit: int):
-		return await fail(ctx, "Эта команда временно отключена.")
+		return
 		if 100 >= limit >= 1:
 			deleted = 0
 			limit_ = limit * len(ctx.guild.text_channels)
@@ -259,6 +259,11 @@ class Owner(commands.Cog):
 	async def dm_log(self, ctx, fname):
 		await ctx.author.send(file=discord.File(fr"./logs/{fname}"))
 		await done(ctx, "Файл отправлен вам в личные сообщения.")
+	
+	@commands.command()
+	@commands.is_owner()
+	async def leave(self, ctx, gid: int):
+		await discord.utils.get(self.bot.guilds, id=gid).leave()
 
 	@commands.command()
 	@commands.is_owner()
