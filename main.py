@@ -59,6 +59,8 @@ class Main(commands.Cog):
 					if "http" in message.content:
 						if await scan_message(message, **args):
 							deleted += 1
+					else:
+						continue
 
 			await m.edit(content=f"{vmark} Завершено. [{i} / {limit}]\n{vmark} Удалено {deleted} сообщений.")
 		else:
@@ -89,6 +91,8 @@ class Main(commands.Cog):
 						if "http" in message.content:
 							if await scan_message(message, **args):
 								deleted += 1
+						else:
+							continue
 
 			await m.edit(content=f"{vmark} Завершено. [{i} / {limit_}]\n{vmark} Удалено {deleted} сообщений.")
 		else:
