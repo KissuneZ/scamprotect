@@ -36,67 +36,50 @@ class Main(commands.Cog):
 		set_prefix(key, prefix)
 		await done(ctx, f"Префикс для этого сервера иземенен на `{prefix}`.")
 
-	@commands.command(enabled=False)
+	@commands.command()
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
-	@commands.cooldown(3, 60, commands.BucketType.guild)
+	@commands.cooldown(1, 60, commands.BucketType.guild)
 	async def clear(self, ctx, limit: int):
-		return
+		key = ctx.guild.id
+
+		if channel_scanners.get(key):
+			return await fail(ctx, "Дождитесь окончания сканирования или отмените его, удалив вообщение.")
 		if 100 >= limit >= 1:
 			m = await ctx.send(pattern.format(waiting, 0, limit))
-			messages = await ctx.channel.history(limit=limit).flatten()
-			deleted = 0
-			key = ctx.guild.id
-			args = fetch_scanner_arguments(key)
-			args.update(manual_scanner_args)
 			i = 0
-			for message in messages:
-				i += 1
-				try:
-					await m.edit(content=pattern.format(waiting, i, limit))
-				except:
-					return await fail(ctx, "Отменено.")
-				async with ctx.typing():
-					if "http" in message.content:
-						if await scan_message(message, **args):
-							deleted += 1
-					else:
-						continue
-
-			await m.edit(content=f"{vmark} Завершено. [{i} / {limit}]\n{vmark} Удалено {deleted} сообщений.")
+			channel_scanners.update({key: [0, limit, m]})
+			deleted = await ctx.channel.purge(limit=limit, check=is_scam)
+			deleted = len(deleted)
+			await done(ctx, f"Удалено {deleted} сообщений.")
+			del channel_scanners[key]
 		else:
-			await fail(ctx, f"Количество сообщений должно быть в пределах от 10 до 100.")
+			await fail(ctx, f"Количество сообщений должно быть в пределах от 1 до 100.")
 
-	@commands.command(enabled=False)
+	@commands.command()
 	@commands.has_permissions(manage_messages=True)
 	@commands.bot_has_permissions(manage_messages=True)
 	@commands.cooldown(1, 300, commands.BucketType.guild)
 	async def clearall(self, ctx, limit: int):
-		return
-		if 100 >= limit >= 1:
-			deleted = 0
-			limit_ = limit * len(ctx.guild.text_channels)
-			key = ctx.guild.id
-			args = fetch_scanner_arguments(key)
-			args.update(manual_scanner_args)
-			m = await ctx.send(pattern.format(waiting, 0, limit_))
-			i = 0
-			for channel in ctx.guild.text_channels:
-				messages = await channel.history(limit=limit).flatten()
-				for message in messages:
-					i += 1
-					try:
-						await m.edit(content=pattern.format(waiting, i, limit_))
-					except:
-						return await fail(ctx, "Отменено.")
-					async with ctx.typing():
-						if "http" in message.content:
-							if await scan_message(message, **args):
-								deleted += 1
-						else:
-							continue
+		key = ctx.guild.id
 
-			await m.edit(content=f"{vmark} Завершено. [{i} / {limit_}]\n{vmark} Удалено {deleted} сообщений.")
+		if channel_scanners.get(key):
+			return await fail(ctx, "Дождитесь окончания сканирования или отмените его, удалив вообщение.")
+		if 100 >= limit >= 1:
+			channels = ctx.guild.text_channels
+			limit_   = limit * len(channels)
+			key      = ctx.guild.id
+			deleted  = 0
+
+			m = await ctx.send(pattern.format(waiting, 0, limit_))
+			channel_scanners.update({key: [0, limit_, m]})
+
+			for channel in channels:
+				deleted_ = await ctx.channel.purge(limit=limit, check=is_scam)
+				deleted += len(deleted_)
+
+			del channel_scanners[key]
+			await done(ctx, f"Удалено {deleted} сообщений.")
 		else:
 			await fail(ctx, f"Количество сообщений должно быть в пределах от 1 до 100.")
 
@@ -203,6 +186,7 @@ class Owner(commands.Cog):
 `~set_eb <index> <string>` - Заменить элемент блок-листа ембедов.
 `~remove_eb <index>` - Удалить элемент из блок-листа ембедов.
 `~servers` - Список серверв, на которых есть бот.
+`~leave <gid>` - Покинуть сервер с указаным ID.
 `~logs` - Список лог-файлов.
 `~purge_logs` - Удалить все лог-файлы.
 `~send_log <fname>` - Отправить лог-файл в чат.
@@ -263,7 +247,9 @@ class Owner(commands.Cog):
 	@commands.command()
 	@commands.is_owner()
 	async def leave(self, ctx, gid: int):
+		logger.info(f"Manually forced to leave server [ID: {gid}].")
 		await discord.utils.get(self.bot.guilds, id=gid).leave()
+		await done(ctx, f"Бот покинул сервер {gid}.")
 
 	@commands.command()
 	@commands.is_owner()
