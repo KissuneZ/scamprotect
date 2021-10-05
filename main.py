@@ -43,6 +43,8 @@ class Main(commands.Cog):
 	async def clear(self, ctx, limit: int):
 		key = ctx.guild.id
 
+		if ctx.guild.member_count < 25:
+			return await fail(ctx, "Данная команда недоступна на серверах с менее чем 25 участниками.")
 		if channel_scanners.get(key):
 			return await fail(ctx, "Дождитесь окончания сканирования или отмените его, удалив вообщение.")
 		if 100 >= limit >= 1:
@@ -63,6 +65,8 @@ class Main(commands.Cog):
 	async def clearall(self, ctx, limit: int):
 		key = ctx.guild.id
 
+		if ctx.guild.member_count < 25:
+			return await fail(ctx, "Данная команда недоступна на серверах с менее чем 25 участниками.")
 		if channel_scanners.get(key):
 			return await fail(ctx, "Дождитесь окончания сканирования или отмените его, удалив вообщение.")
 		if 100 >= limit >= 1:
