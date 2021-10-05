@@ -10,9 +10,15 @@ import logging
 import datetime
 import shutil
 import atexit
+import nest_asyncio
 
 
-__version__ = "6.2.4"
+nest_asyncio.apply()
+
+reasons = ["Ембед: {}", "Счёт ИИ: {}"]
+unix    = int(pathlib.Path('bot.py').stat().st_mtime)
+
+__version__ = "6.3.0"
 
 info    = "<:info:863711569975967745>"
 danger  = "<:danger:862303667465093140>"
@@ -32,16 +38,15 @@ default_prefix = "~"
 sessioncache   = {"sc": 0, "dmc": 0}
 pattern        = "{} Сканирование... [{} / {}]"
 
-reasons        = ["Ембед: {}", "Счёт ИИ: {}"]
-
 support = "https://discord.gg/GpedR6jeZR"
-hook    = "https://discord.com/api/webhooks/888444735289696317/9Y8C-BlwF-27VdrZDvO3CLxFNlqqkh2S29lEQidTntudhSk3A-0ecPU0RxtVEViZZSM2"
+hook = "https://discord.com/api/webhooks/888444735289696317/9Y8C-BlwF-27VdrZDvO3CLxFNlqqkh2S29lEQidTntudhSk3A-0ecPU0RxtVEViZZSM2"
 
-logger  = None
-bot_    = discord.ext.commands.Bot(None)
+channel_scanners = {}
+logger = None
+bot_   = discord.ext.commands.Bot(None)
 
 commands_ = discord.ext.commands
-manual_scanner_args = {"notify": False, "dm": False, "noscup": True}
+manual_scanner_args = {"notify": False, "dm": False, "cid": None, "noscup": True, "delete": False}
 
 
 def api_interact(do: str, data=None):
@@ -123,12 +128,12 @@ def get_global_session():
 	external_session = get_remote_session()
 	local_session    = get_session()
 
-	local_sc         = local_session["sc"]
-	local_dmc        = local_session["dmc"]
+	local_sc  = local_session["sc"]
+	local_dmc = local_session["dmc"]
 
-	external_sc      = external_session["sc"]
-	external_dmc     = external_session["dmc"]
-
+	external_sc  = external_session["sc"]
+	external_dmc = external_session["dmc"]
+	
 	sc  = external_sc  + local_sc
 	dmc = external_dmc + local_dmc
 
@@ -184,7 +189,7 @@ def fetch_scanner_arguments(key):
 	notify = key not in db["dontnotify"]
 	disabled = key in db.get("disabled", False)
 	cid = db["logchannels"].get(str(key))
-	data = {"dm": dm, "notify": notify, "disabled": disabled, "cid": cid, "noscup": False}
+	data = {"dm": dm, "notify": notify, "disabled": disabled, "cid": cid, "noscup": False, "delete": True}
 	return data
 
 
@@ -212,8 +217,8 @@ def init():
 	global logger, embed_blacklist, suspicious
 
 	logging.basicConfig(filename="./logs/latest.log", filemode="a",
-			    format='[%(asctime)s | %(name)s / %(levelname)s]: %(message)s',
-			    level=logging.INFO)
+				    	format='[%(asctime)s | %(name)s / %(levelname)s]: %(message)s',
+				    	level=logging.INFO)
 	logger = logging.getLogger("Wolverine")
 
 	atexit.register(exit_handler)
@@ -222,6 +227,33 @@ def init():
 
 	logger.info(f"Loaded Wolverine {__version__}.")
 
+
+def is_scam(message):
+	key = message.guild.id
+	channel_scanners[key][0] += 1
+	i = channel_scanners[key][0]
+	l = channel_scanners[key][1]
+	m = channel_scanners[key][2]
+	text = pattern.format(waiting, i, l)
+	if i < l:
+		try:
+			asyncio.run(m.edit(content=text))
+		except:
+			text = f"{vmark} Отменено. [{i} / {l}]"
+			asyncio.run(m.channel.send(content=text))
+			del channel_scanners[key]
+			raise commands_.errors.CommandNotFound
+
+	else:
+		text = f"{vmark} Завершено. [{i} / {l}]"
+		asyncio.run(m.edit(content=text))
+
+	if "http" in message.content:
+		task = scan_message(message, **manual_scanner_args)
+		result = asyncio.run(task)
+		return result
+
+	return False
 
 
 async def ai_scanner(message, **args):
@@ -247,8 +279,6 @@ async def scan_message(message, **args):
 	if not message.embeds:
 		await asyncio.sleep(1)
 		message = await message.channel.fetch_message(message.id)
-	elif not "http" in message.content:
-		return False
 
 	indexx = 0
 	for embed in message.embeds:
@@ -264,7 +294,7 @@ async def check_embed(embed, message, indexx, **args):
 			if elem in embed.title.lower() and elem != "":
 				return await delete(message, index, indexx, 0, "Заголовок", **args)
 		except:
-			return False
+			pass
 		try:
 			if elem in embed.description.lower() and elem != "":
 				return await delete(message, index, indexx, 0, "Описание", **args)
@@ -274,11 +304,14 @@ async def check_embed(embed, message, indexx, **args):
 
 
 async def delete(message, index, indexx, rindex, blkey, **args):
+	if not args["delete"]:
+		return True
+
 	reason = reasons[rindex].format(f"{blkey}: {[indexx]}: {index}")
 	embed = discord.Embed(description=f"{danger} Удалено сообщение от пользователя {message.author.mention}.\n » **Причина**: **`{reason}`**.",
-			      color=SECONDARY)
-	embed_dm = discord.Embed(description=f"{danger} Ваше сообщение было удалено.\n```{message.content}```",
-				 color=SECONDARY)
+			       		  color=SECONDARY)
+	embed_dm = discord.Embed(description=f"{danger} **Ваше сообщение было удалено**.\n```{message.content}```",
+			       		     color=SECONDARY)
 	embed_dm.set_footer(text=f"Причина: {reason}. | {message.guild.name}", icon_url=message.guild.icon_url)
 	try:
 		await message.delete()
@@ -326,8 +359,8 @@ async def auto_restart(bot):
 		if uptime >= 240:
 			logger.info("Restarting...")
 			await bot.change_presence(status=discord.Status.idle,
-						  activity=discord.Activity(name="Перезапуск...",
-									    type=discord.ActivityType.watching))
+								  	  activity=discord.Activity(name="Перезапуск...",
+								  	  type=discord.ActivityType.watching))
 			exit_handler()
 			python = sys.executable
 			os.execl(python, python, *sys.argv)
@@ -360,6 +393,6 @@ async def presence_loop(bot):
 
 		presence = f"{default_prefix}help | [{len(bot.guilds)}]"
 		await bot.change_presence(status=discord.Status.dnd,
-					  activity=discord.Activity(name=presence,
-								    type=discord.ActivityType.watching))
+								  activity=discord.Activity(name=presence,
+								  							type=discord.ActivityType.watching))
 		await asyncio.sleep(60)
