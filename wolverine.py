@@ -395,4 +395,4 @@ async def presence_loop(bot):
 		await bot.change_presence(status=discord.Status.dnd,
 								  activity=discord.Activity(name=presence,
 								  							type=discord.ActivityType.watching))
-		await asyncio.sleep(60)
+		await asyncio.sleep(300)
