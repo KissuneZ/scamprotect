@@ -13,7 +13,7 @@ import subprocess
 import shlex
 from langs import languages
 
-__version__ = "7.0.1"
+__version__ = "7.0.2"
 
 info    = "<:info:863711569975967745>"
 danger  = "<:danger:862303667465093140>"
@@ -427,7 +427,7 @@ async def check_embed(embed, message, indexx, **kwargs):
 
 
 async def delete(message, index, indexx, rindex, blkey, **kwargs):
-	if not args["delete"]:
+	if not kwargs["delete"]:
 		return True
 
 	reason = lang(message)["reasons"][rindex].format(f"{blkey}: {[indexx]}: {index}")
@@ -446,7 +446,7 @@ async def delete(message, index, indexx, rindex, blkey, **kwargs):
 			if not channel or not kwargs["cid"]:
 				channel  = message.channel
 			await channel.send(embed=embed)
-		if args["dm"]:
+		if kwargs["dm"]:
 			await message.author.send(embed=embed_dm)
 	except Exception as e:
 		logger.error(e)
