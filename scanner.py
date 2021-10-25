@@ -28,7 +28,6 @@ class Cancelled(Exception):
 
 class AsyncScannerThread(Thread):
 	def __init__(self, data, channels):
-		print("__init__()")
 		Thread.__init__(self)
 		self.channels = channels
 		self.index    = data[0]
@@ -43,7 +42,6 @@ class AsyncScannerThread(Thread):
 
 
 	def get_channels(self, cids):
-		print(f"get_channels(self, {cids})")
 		channels = []
 		self.channel = self.bot.get_channel(self.channel)
 		for cid in cids:
@@ -52,7 +50,6 @@ class AsyncScannerThread(Thread):
 		return channels
 
 	async def run(self):
-		print("run()")
 		d = []
 		self.channels = self.get_channels(self.channels)
 		self.message  = await self.channel.fetch_message(self.message)
@@ -72,11 +69,9 @@ class AsyncScannerThread(Thread):
 		exit(0)
 
 	def check(self, message):
-		print("check()")
 		return asyncio.run(self.check_(message))
 
 	async def check_(self, message):
-		print("check_()")
 		self.index += 1
 		i = self.index
 		l = self.glimit
@@ -85,6 +80,7 @@ class AsyncScannerThread(Thread):
 		text = pattern.format(waiting, i, l)
 		if i < l:
 			try:
+				text = lang(self.message)["s_pattern"].format(vmark, i, l)
 				await m.edit(content=text)
 			except:
 				text  = lang(self.message)["s_cancelled"].format(vmark, i, l)
