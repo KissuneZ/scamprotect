@@ -1,5 +1,6 @@
 languages = {
 	"ru": {
+		"my_prefix": "{} Мой префикс: [`{}`].",
 		"exception": "Произошла ошибка",
 		"not_owner": "Вы не владелец бота.",
 		"missing_access": "У меня нет прав для выполнения данной команды.\n",
@@ -71,6 +72,7 @@ languages = {
 		"shutting_down": "Выключение..."
 	},
 	"en": {
+		"my_prefix": "{} My prefix: [`{}`].",
 		"exception": "Unhandled exception.",
 		"not_owner": "You do not own this bot.",
 		"missing_access": "I don't have permissions to execute this command.\n",
