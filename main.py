@@ -47,7 +47,7 @@ class Main(commands.Cog):
 			return await fail(ctx, lang(ctx)["scanner_already_running"])
 		if 100 >= limit >= 1:
 			deleted = len(await ctx.channel.purge(limit=limit))
-			await done(ctx, lang(ctx)[msgs_deleted].format(deleted))
+			await done(ctx, lang(ctx)["msgs_deleted"].format(deleted))
 		else:
 			await fail(ctx, lang(ctx)["invalid_limit"])
 
@@ -68,7 +68,7 @@ class Main(commands.Cog):
 					deleted += len(await channel.purge(limit=limit))
 				except:
 					continue
-			await done(ctx, lang(ctx)[msgs_deleted].format(deleted))
+			await done(ctx, lang(ctx)["msgs_deleted"].format(deleted))
 		else:
 			await fail(ctx, lang(ctx)["invalid_limit"])
 
