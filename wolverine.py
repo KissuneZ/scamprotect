@@ -13,7 +13,7 @@ import subprocess
 import shlex
 from langs import languages
 
-__version__ = "7.0.3"
+__version__ = "7.0.4"
 
 info    = "<:info:863711569975967745>"
 danger  = "<:danger:862303667465093140>"
@@ -70,7 +70,7 @@ def get_lang_key(ctx, key):
 			lk = "ru"
 			if str(ctx.guild.region) != "russia":
 				lk = "en"
-			db.update({"langs": {key: lk}})
+			db["langs"][str(key)] = lk
 			db_write(db)
 
 		langkeys[key] = lk
