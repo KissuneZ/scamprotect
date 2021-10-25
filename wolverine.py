@@ -393,7 +393,7 @@ async def ai_scanner(message, **kwargs):
 
 
 async def scan_message(message, **kwargs):
-	if not args["noscup"]:
+	if not kwargs["noscup"]:
 		sc_up()
 
 	if await ai_scanner(message, **kwargs):
