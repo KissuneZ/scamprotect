@@ -76,10 +76,10 @@ class AsyncScannerThread(Thread):
 		l = self.glimit
 		m = self.message
 
-		text = pattern.format(waiting, i, l)
+		text = lang(self.message)["scan_pattern"].format(waiting, i, l)
 		if i < l:
 			try:
-				text = lang(self.message)["scan_pattern"].format(vmark, i, l)
+				text = lang(self.message)["scan_pattern"].format(waiting, i, l)
 				await m.edit(content=text)
 			except Exception as e:
 				print(e)
