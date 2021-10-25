@@ -82,7 +82,8 @@ class AsyncScannerThread(Thread):
 			try:
 				text = lang(self.message)["scan_pattern"].format(vmark, i, l)
 				await m.edit(content=text)
-			except:
+			except Exception as e:
+				print(e)
 				text  = lang(self.message)["s_cancelled"].format(vmark, i, l)
 				await m.channel.send(content=text)
 				os.remove(fname)
