@@ -7,20 +7,22 @@ bot = commands.Bot(command_prefix=determine_prefix,
 		   case_insensitive=True,
 		   help_command=None)
 
-Token = "ODY3MDMwOTQ1MTIyNjE1Mjk3.YPbLfQ.Yvo95f-qmLF3wmHBXDkcnpXGv_M"
+TOKEN = read_config()["token"]
 
 archive_logs()
 logging.basicConfig(filename="./logs/latest.log", filemode="w+",
-				    format='[%(asctime)s | %(name)s / %(levelname)s]: %(message)s', level=logging.INFO)
+				    format=log_pattern, level=logging.INFO)
 
 
 logger = logging.getLogger("Main")
-logger.info(f"Running...")
+logger.info(f"Starting up...")
 
 init()
 
 logger.info("Loading CommandListener...")
 bot.load_extension("main")
+
+
 
 
 @bot.event
@@ -35,36 +37,44 @@ async def on_ready():
 async def on_command_error(ctx, error):
 	msg = error
 
-	if isinstance(error, commands.errors.CommandNotFound):
-		return
-	
 	if isinstance(error, commands.errors.CommandInvokeError):
 		_error = str(error).replace("Command raised an exception: ", "")
 		logger.error(f"`{_error}` was raised while executing `{ctx.message.content}`.")
-		msg = f"Произошла ошибка.\n```py\n{_error}```"
+		msg = lang(ctx)["exception"] + f"\n```py\n{_error}```"
+
+	if isinstance(error, commands.errors.CommandNotFound):
+		return
 
 	if isinstance(error, commands.CommandOnCooldown):
-		msg = f"Команда будет доступна через {int(error.retry_after)} секунд."
+		msg = lang(ctx)["retry_after"].format(int(error.retry_after))
+
+	ctx.command.reset_cooldown(ctx)
 
 	if isinstance(error, commands.errors.BotMissingPermissions):
-		msg = "У меня нет прав для выполнения данной команды."
-
-	if isinstance(error, commands.errors.MissingRequiredArgument):
-		msg = "Вы не указали обязательный аргумент."
+		msg = lang(ctx)["missing_access"]
+		for perm in error.missing_perms:
+			msg += f"\n> {lang(ctx)['perms'][perm]}"
 
 	if isinstance(error, commands.MissingPermissions):
-		msg = f'У вас нет прав для вызова этой команды.'
+		msg = lang(ctx)["no_perms"]
+		for perm in error.missing_perms:
+			msg += f"\n> {lang(ctx)['perms'][perm]}"
+
+	if isinstance(error, commands.errors.MissingRequiredArgument):
+		lang(ctx)["missing_reqarg"]
 
 	if isinstance(error, commands.errors.ChannelNotFound):
-		msg = 'Канал не найден.'
+		lang(ctx)["channel_nf"]
 
 	if isinstance(error, commands.BadArgument):
-		msg = 'Несовместимый тип аргумента.'
+		lang(ctx)["bad_arg"]
 
 	if isinstance(error, commands.errors.NotOwner):
-		msg = 'Вы не владелец бота.'
+		lang(ctx)["not_owner"]
 
 	await fail(ctx, msg)
+
+
 
 
 @bot.event
@@ -82,13 +92,13 @@ async def on_message(message):
 		return
 
 	key = message.guild.id
-	args = fetch_scanner_arguments(key)
+	kwargs = fetch_scanner_arguments(key)
 
-	if not args["disabled"]:
-		await scan_message(message, **args)
+	if kwargs["disabled"]:
+		await scan_message(message, **kwargs)
 
 
 
 
 logger.info("Logging in...")
-bot.run(Token)
+bot.run(TOKEN)
