@@ -46,7 +46,6 @@ class AsyncScannerThread(Thread):
 		self.channel = self.bot.get_channel(self.channel)
 		for cid in cids:
 			channels.append(self.bot.get_channel(cid))
-		print(channels)
 		return channels
 
 	async def run(self):
