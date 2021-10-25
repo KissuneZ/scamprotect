@@ -28,6 +28,7 @@ class Cancelled(Exception):
 
 class AsyncScannerThread(Thread):
 	def __init__(self, data, channels):
+		print("__init__()")
 		Thread.__init__(self)
 		self.channels = channels
 		self.index    = data[0]
@@ -42,13 +43,16 @@ class AsyncScannerThread(Thread):
 
 
 	def get_channels(self, cids):
+		print(f"get_channels(self, {cids})")
 		channels = []
 		self.channel = self.bot.get_channel(self.channel)
 		for cid in cids:
 			channels.append(self.bot.get_channel(cid))
+		print(channels)
 		return channels
 
 	async def run(self):
+		print("run()"
 		d = []
 		self.channels = self.get_channels(self.channels)
 		self.message  = await self.channel.fetch_message(self.message)
@@ -68,9 +72,11 @@ class AsyncScannerThread(Thread):
 		exit(0)
 
 	def check(self, message):
+		print("check()")
 		return asyncio.run(self.check_(message))
 
 	async def check_(self, message):
+		print("check_()")
 		self.index += 1
 		i = self.index
 		l = self.glimit
