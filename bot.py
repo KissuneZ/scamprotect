@@ -85,7 +85,7 @@ async def on_message(message):
 	mentions = [f"<@!{bot.user.id}>", f"<@{bot.user.id}>"]
 	if message.content in mentions:
 		p = get_prefix(message.guild.id)
-		return await message.reply(f"{vmark} Мой префикс: [`{p}`].")
+		return await message.reply(lang(message)["my_prefix"].format(vmark, p))
 
 	await bot.process_commands(message)
 	if not "http" in message.content:
