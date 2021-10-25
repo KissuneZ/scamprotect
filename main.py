@@ -46,7 +46,8 @@ class Main(commands.Cog):
 		if is_scanner_running(key):
 			return await fail(ctx, lang(ctx)["scanner_already_running"])
 		if 100 >= limit >= 1:
-			await ctx.channel.purge(limit=limit)
+			deleted = len(await ctx.channel.purge(limit=limit))
+			await done(ctx, lang(ctx)[msgs_deleted].format(deleted))
 		else:
 			await fail(ctx, lang(ctx)["invalid_limit"])
 
@@ -59,13 +60,15 @@ class Main(commands.Cog):
 
 		if is_scanner_running(key):
 			return await fail(ctx, lang(ctx)["scanner_already_running"])
+		deleted = 0
 		if 100 >= limit >= 1:
 			channels = ctx.guild.text_channels
 			for channel in channels:
 				try:
-					await channel.purge(limit=limit)
+					deleted += len(await channel.purge(limit=limit))
 				except:
 					continue
+			await done(ctx, lang(ctx)[msgs_deleted].format(deleted))
 		else:
 			await fail(ctx, lang(ctx)["invalid_limit"])
 
