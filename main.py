@@ -366,7 +366,7 @@ class Info(commands.Cog):
 				      title=lang(ctx)["info"],
 				      description=lang(ctx)["about"].format(info, danger, version())
 				     )
-		embed.set_footer(text=copyright)
+		embed.set_footer(text=copyright, icon_url=self.bot.user.avatar_url)
 		await ctx.send(embed=embed)
 
 	@commands.command()
