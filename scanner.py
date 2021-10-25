@@ -52,7 +52,7 @@ class AsyncScannerThread(Thread):
 		return channels
 
 	async def run(self):
-		print("run()"
+		print("run()")
 		d = []
 		self.channels = self.get_channels(self.channels)
 		self.message  = await self.channel.fetch_message(self.message)
