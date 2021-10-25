@@ -13,7 +13,7 @@ import subprocess
 import shlex
 from langs import languages
 
-__version__ = "7.0.4"
+__version__ = "7.1.0"
 
 info    = "<:info:863711569975967745>"
 danger  = "<:danger:862303667465093140>"
@@ -46,13 +46,6 @@ commands_ = discord.ext.commands
 manual_scanner_args = {"notify": False, "dm": False, "cid": None, "noscup": True, "delete": False, "allowfetch": False}
 
 
-def is_first_run():
-	if os.path.isfile("FIRSTRUN"):
-		os.remove("FIRSTRUN")
-		return True
-	return False
-
-
 def lang(ctx):
 	key = ctx.guild.id
 	lang_key = get_lang_key(ctx, key)
@@ -75,11 +68,6 @@ def get_lang_key(ctx, key):
 
 		langkeys[key] = lk
 	return lk
-
-
-def sync_database():
-	local_db = local_api("getdb")
-	api_interact("setdb", local_db)
 
 
 def download_ext_db():
@@ -368,8 +356,6 @@ def init():
 	connection_check()
 
 	if not offline_mode:
-		if not is_first_run():
-			sync_database()
 		download_ext_db()
 
 	purge_scanners()
