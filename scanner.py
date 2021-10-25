@@ -57,7 +57,8 @@ class AsyncScannerThread(Thread):
 				d = await channel.purge(limit=self.limit, check=self.check)
 			except Cancelled:
 				break
-			except:
+			except Exception as e:
+				print(e)
 				self.index += self.limit
 			self.deleted += len(d)
 		await done(self.channel, lang(self.message)["msgs_deleted"].format(self.deleted))
@@ -81,7 +82,6 @@ class AsyncScannerThread(Thread):
 			try:
 				await m.edit(content=text)
 			except:
-
 				text  = lang(self.message)["s_cancelled"].format(vmark, i, l)
 				await m.channel.send(content=text)
 				os.remove(fname)
