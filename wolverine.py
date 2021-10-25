@@ -13,7 +13,7 @@ import subprocess
 import shlex
 from langs import languages
 
-__version__ = "7.0.2"
+__version__ = "7.0.3"
 
 info    = "<:info:863711569975967745>"
 danger  = "<:danger:862303667465093140>"
@@ -43,7 +43,7 @@ logger = None
 bot_   = discord.ext.commands.Bot(None)
 
 commands_ = discord.ext.commands
-manual_scanner_args = {"notify": False, "dm": False, "cid": None, "noscup": True, "delete": False}
+manual_scanner_args = {"notify": False, "dm": False, "cid": None, "noscup": True, "delete": False, "allowfetch": False}
 
 
 def is_first_run():
@@ -326,7 +326,7 @@ def fetch_scanner_arguments(key):
 	notify = key not in db["dontnotify"]
 	disabled = key in db.get("disabled", False)
 	cid = db["logchannels"].get(str(key))
-	data = {"dm": dm, "notify": notify, "disabled": disabled, "cid": cid, "noscup": False, "delete": True}
+	data = {"dm": dm, "notify": notify, "disabled": disabled, "cid": cid, "noscup": False, "delete": True, "allowfetch": True}
 	return data
 
 
@@ -399,7 +399,7 @@ async def scan_message(message, **kwargs):
 	if await ai_scanner(message, **kwargs):
 		return True
 
-	if not message.embeds:
+	if not message.embeds and kwargs["allowfetch"]:
 		await asyncio.sleep(1)
 		message = await message.channel.fetch_message(message.id)
 
