@@ -136,7 +136,7 @@ languages = {
 		"reasons": ["Embed: {}", "AI score: {}"],
 		"r_dm_pattern": "Reason: {}. | {}",
 		"d_dm_pattern": "{} Your message has been deleted.\n```{}```",
-		"d_srv_pattern": "{} Deleted message from {}.\n » **Reason**: **`{}`**.",
+		"d_srv_pattern": "{} Deleted message from user {}.\n » **Reason**: **`{}`**.",
 		"restarted": "{} Restarted.",
 		"msgs_deleted": "Deleted {} messages.",
 		"s_cancelled": "{} Cancelled. [{} / {}]",
