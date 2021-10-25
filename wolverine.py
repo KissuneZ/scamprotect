@@ -438,12 +438,12 @@ async def delete(message, index, indexx, rindex, blkey, **kwargs):
 	embed_dm.set_footer(text=lang(message)["r_dm_pattern"].format(reason, message.guild.name), icon_url=message.guild.icon_url)
 	try:
 		await message.delete()
-		if args["notify"]:
+		if kwargs["notify"]:
 			channel = message.channel
-			if args["cid"]:
+			if kwargs["cid"]:
 				channels = message.guild.text_channels
-				channel  = discord.utils.get(channels, id=args["cid"])
-			if not channel or not args["cid"]:
+				channel  = discord.utils.get(channels, id=kwargs["cid"])
+			if not channel or not kwargs["cid"]:
 				channel  = message.channel
 			await channel.send(embed=embed)
 		if args["dm"]:
