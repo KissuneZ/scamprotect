@@ -80,7 +80,7 @@ class AsyncScannerThread(Thread):
 		text = pattern.format(waiting, i, l)
 		if i < l:
 			try:
-				text = lang(self.message)["s_pattern"].format(vmark, i, l)
+				text = lang(self.message)["scan_pattern"].format(vmark, i, l)
 				await m.edit(content=text)
 			except:
 				text  = lang(self.message)["s_cancelled"].format(vmark, i, l)
