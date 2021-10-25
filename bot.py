@@ -94,7 +94,7 @@ async def on_message(message):
 	key = message.guild.id
 	kwargs = fetch_scanner_arguments(key)
 
-	if kwargs["disabled"]:
+	if not kwargs["disabled"]:
 		await scan_message(message, **kwargs)
 
 
