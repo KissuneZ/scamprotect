@@ -363,8 +363,9 @@ class Info(commands.Cog):
 	@commands.command()
 	async def about(self, ctx):
 		embed = discord.Embed(color=PRIMARY,
-			    	  title=lang(ctx)["info"],
-			    	  description=lang(ctx)["about"].format(version()))
+				      title=lang(ctx)["info"],
+				      description=lang(ctx)["about"].replace("{}", version())
+				     )
 		embed.set_footer(text=copyright)
 		await ctx.send(embed=embed)
 
