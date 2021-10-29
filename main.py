@@ -187,7 +187,7 @@ class Main(commands.Cog):
 			else:
 				return await fail(ctx, lang(ctx)["diffcnotify_notset"])
 		elif type(arg) == str:
-			raise ValueError("Argument must be <discord.TextChannel object> or ['off', 'remove'].")
+			return await fail(ctx, lang(ctx)["bad_arg"])
 		channel: discord.TextChannel = arg
 		cid = channel.id
 		db["logchannels"].get(key)
