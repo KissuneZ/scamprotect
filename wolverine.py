@@ -46,6 +46,10 @@ commands_ = discord.ext.commands
 manual_scanner_args = {"notify": False, "dm": False, "cid": None, "noscup": True, "delete": False, "allowfetch": False}
 
 
+class BadArgument(Exception):
+	pass
+
+
 def lang(ctx):
 	key = ctx.guild.id
 	lang_key = get_lang_key(ctx, key)
