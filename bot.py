@@ -66,7 +66,7 @@ async def on_command_error(ctx, error):
 	if isinstance(error, commands.errors.ChannelNotFound):
 		lang(ctx)["channel_nf"]
 
-	if isinstance(error, commands.BadArgument):
+	if isinstance(error, commands.BadArgument) or isinstance(error, ValueError):
 		lang(ctx)["bad_arg"]
 
 	if isinstance(error, commands.errors.NotOwner):
