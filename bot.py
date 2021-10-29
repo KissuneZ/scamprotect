@@ -37,16 +37,16 @@ async def on_ready():
 async def on_command_error(ctx, error):
 	msg = error
 
+
 	if isinstance(error, commands.errors.CommandInvokeError):
 		_error = str(error).replace("Command raised an exception: ", "")
 		logger.error(f"`{_error}` was raised while executing `{ctx.message.content}`.")
 		msg = lang(ctx)["exception"] + f"\n```py\n{_error}```"
-
 	if isinstance(error, commands.errors.CommandNotFound):
 		return
-
 	if isinstance(error, commands.CommandOnCooldown):
 		msg = lang(ctx)["retry_after"].format(int(error.retry_after))
+
 
 	ctx.command.reset_cooldown(ctx)
 
@@ -54,24 +54,16 @@ async def on_command_error(ctx, error):
 		msg = lang(ctx)["missing_access"]
 		for perm in error.missing_perms:
 			msg += f"\n> {lang(ctx)['perms'][perm]}"
-
 	if isinstance(error, commands.MissingPermissions):
 		msg = lang(ctx)["no_perms"]
 		for perm in error.missing_perms:
 			msg += f"\n> {lang(ctx)['perms'][perm]}"
-
 	if isinstance(error, commands.errors.MissingRequiredArgument):
 		lang(ctx)["missing_reqarg"]
-
 	if isinstance(error, commands.errors.ChannelNotFound):
 		lang(ctx)["channel_nf"]
-
 	if isinstance(error, commands.BadArgument):
 		lang(ctx)["bad_arg"]
-	
-	if isinstance(error, BadArgument):
-		lang(ctx)["bad_arg"]
-
 	if isinstance(error, commands.errors.NotOwner):
 		lang(ctx)["not_owner"]
 
