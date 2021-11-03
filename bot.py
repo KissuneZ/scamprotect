@@ -46,10 +46,8 @@ async def on_command_error(ctx, error):
 		return
 	if isinstance(error, commands.CommandOnCooldown):
 		msg = lang(ctx)["retry_after"].format(int(error.retry_after))
-
-
-	ctx.command.reset_cooldown(ctx)
-
+	else:
+		ctx.command.reset_cooldown(ctx)
 	if isinstance(error, commands.errors.BotMissingPermissions):
 		msg = lang(ctx)["missing_access"]
 		for perm in error.missing_perms:
