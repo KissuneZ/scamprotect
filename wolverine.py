@@ -13,7 +13,7 @@ import subprocess
 import shlex
 from langs import languages
 
-__version__ = "7.1.0"
+__version__ = "7.1.1"
 
 info    = "<:info:863711569975967745>"
 danger  = "<:danger:862303667465093140>"
@@ -126,7 +126,7 @@ def connection_check():
 		return False
 
 	if logger:
-		logger.warn(f"Connection check passed. Response code: {r.status_code}")
+		logger.info(f"Connection check passed. Response code: {r.status_code}")
 	offline_mode = False
 	return True
 
