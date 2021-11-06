@@ -203,7 +203,8 @@ class Main(commands.Cog):
 			key = ctx.guild.id
 			db = db_read()
 			langkeys[key] = lk
-			db.update({"langs": {key: lk}})
+			db["langs"].get(key)
+			db["langs"][key] = lk
 			db_write(db)
 			await done(ctx, lang(ctx)["lang_set"])
 		else:
