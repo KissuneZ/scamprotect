@@ -13,7 +13,7 @@ import subprocess
 import shlex
 from langs import languages
 
-__version__ = "7.1.1"
+__version__ = "7.1.2"
 
 info    = "<:info:863711569975967745>"
 danger  = "<:danger:862303667465093140>"
