@@ -1,7 +1,7 @@
 languages = {
 	"ru": {
 		"my_prefix": "{} Мой префикс: [`{}`].",
-		"exception": "Произошла ошибка",
+		"exception": "Произошла ошибка.",
 		"not_owner": "Вы не владелец бота.",
 		"missing_access": "У меня нет прав для выполнения данной команды.\n",
 		"no_perms": "У вас нет прав для вызова этой команды.\n",
@@ -31,15 +31,27 @@ languages = {
 		"diffcnotify_off": "Отдельный канал для уведомлений отключен.",
 		"diffcnotify_notset": "Канал для уведомлений не установлен.",
 		"diffcnotify_set": "Канал для уведомлений установлен на {}.",
-		"sys_help": "`~eval <code>` - Выполнить код.\n`~exec <code>` - Выполнить код (динамически).\n`~await <coroutine>` - Вызвать асинхронную функцию.\n`~add_eb <string>` - Добавить элемент в блок-лист ембедов.\n`~set_eb <index> <string>` - Назначить элемент блок-листа ембедов.\n`~remove_eb <index>` - Удалить элемент из блок-листа ембедов.\n`~servers` - Список серверов, на которых есть бот.\n`~logs` - Список лог-файлов.\n`~purge_logs` - Удалить все лог-файлы.\n`~send_log <fname>` - Отправить лог-файл в чат.\n`~dm_log <fname>` - Отправить лог-файл вам в ЛС.\n`~restart` - Перезапустить бот.\n`~shutdown` - Выключить бота.",
+		"sys_help": "`~eval <code>` - Выполнить код.\n`~exec <code>` - Выполнить код (динамически).\n`~await <coroutine>` - Вызвать асинхронную функцию.\n`~add_eb <string>` - Добавить элемент в блок-лист ембедов.\n`~set_eb <index> <string>` - Назначить элемент блок-листа ембедов.\n`~remove_eb <index>` - Удалить элемент из блок-листа ембедов.\n`~servers` - Список серверов, на которых есть бот.\n`~logs` - Список лог-файлов.\n`~purge_logs` - Удалить все лог-файлы.\n`~send_log <fname>` - Отправить лог-файл в чат.\n`~dm_log <fname>` - Отправить вам в ЛС лог-файл.\n`~restart` - Перезапустить бота.\n`~shutdown` - Выключить бота.",
 		"sys_help_title": ":wrench: Системные команды",
 		"deleted_files": "Удалено {} файлов.",
 		"sent_to_dms": "Проверьте ваши личные сообщения.",
 		"restarting": "{} Перезапуск...",
 		"elem_setto": "Элемент с индексом {} установлен на значение `{}`.",
 		"elem_deleted": "Элемент с индексом {} удален.",
-		"status_pattern": "```Серверов:                 {}\nПользователей:            {}``````Вызовов сканера:          {}\nУдалено сообщений:        {}``````Клиент:                   {}\nID:                       {}``````Оперативная память:       {}%\nПроцессор:                {}%``````Аптайм:                   {}\nЗадержка вебсокета:       {} мс.``````Python:                   {}\ndiscord.py:               {}```",
-		"bot_status": "Состояние бота",
+		"status_pattern": """Серверов: {}
+Пользователей: {}
+Вызовов сканера: {}
+Удалено сообщений: {}
+Клиент: {}
+ID: {}
+Оперативная память: {}%
+Процессор: {}%
+Аптайм: {}
+Задержка вебсокета: {} мс.
+Python: {}
+discord.py: {}
+Wolverine: {}""",
+		"bot_status": ":satellite: Состояние бота",
 		"info": "Информация",
 		"about": "{} Данный бот предназначен для защиты вашего сервера от скама с «Бесплатным Nitro на 3 месяца от Steam» и людьми якобы раздающими свой инвентарь CS:GO. Если вы увидите подобные сообщения, не ведитесь на них!\n\n{} Что-бы ваш аккаунт не взломали, не используйте BetterDiscord и не загружайте подозрительное ПО. Если же вас уже взломали, рекомендуем вам выполнить следующие действия:\nㆍУдалите BetterDiscord с вашего устройства;\nㆍПереустановите клиент Discord;\nㆍПоменяйте пароли всех ваших аккаунтов;\nㆍУстановите надежный антивирус и выполните полную проверку устройства.\n\nБерегите себя!\n\n**Версия ядра**: [Wolverine {}](https://scamprotect.ml/wolverine)\n**Разработчик**: [xshadowsexy#0141](https://discord.com/users/811976103673593856)\n**Вебсайт**: https://scamprotect.ml/\n**Наш сервер**: https://discord.gg/GpedR6jeZR\n**Пожертвовать**: https://qiwi.com/n/XF765",
 		"invite": "{} Добавить бота на сервер: [[Нажми]]({})",
@@ -111,8 +123,20 @@ languages = {
 		"restarting": "{} Restarting...",
 		"elem_setto": "Element with index {} has been set to `{}`.",
 		"elem_deleted": "Element with index {} has been deleted.",
-		"status_pattern": "```Servers:                  {}\nUsers:                    {}``````Scanner calls:            {}\nMessages deleted:         {}``````Client:                   {}\nID:                       {}``````RAM:                      {}%\nCPU:                      {}%``````Uptime:                   {}\nWebsocket ping:           {} ms.``````Python:                   {}\ndiscord.py:               {}```",
-		"bot_status": "Bot status",
+		"status_pattern": """Servers: {}
+Users: {}
+Scanner calls: {}
+Messages deleted: {}
+Client: {}
+ID: {}
+RAM load: {}%
+CPU load: {}%
+Uptime: {}
+Websocket ping: {} ms.
+Python: {}
+discord.py: {}
+Wolverine: {}""",
+		"bot_status": ":satellite: Bot status",
 		"info": "Information",
 		"about": "{} This bot is made to protect your server from «Free Nitro for 3 months from Steam» and people allegedly «distributing their CS:GO inventory» scams. If you see similar messages, don't get fooled by them!\n\n{} To prevent your account from being hacked, do not use BetterDiscord and do not download suspicious software. If you have already been hacked, we recommend you follow these steps:\nㆍRemove BetterDiscord from your device;\nㆍReinstall the Discord client;\nㆍChange the passwords of all your accounts;\nㆍInstall a reliable antivirus and perform a full device scan.\n\n Take care of yourself!\n\n**Core version**: [Wolverine {}](https://scamprotect.ml/wolverine )\n**Developer**: [xshadowsexy#0141](https://discord.com/users/811976103673593856 )\n**Source code**: [Outdated public version](https://github.com/ezz-dev/scamprotect )\n**Website**: https://scamprotect.ml/\n**Our server**: https://discord.gg/GpedR6jeZR\n**Donate**: https://qiwi.com/n/XF765",
 		"invite": "{} Invite me to your server: [[Invite]]({})",
