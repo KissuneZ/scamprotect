@@ -177,12 +177,13 @@ def api_interact(do, data=None):
 	except Exception as e:
 		logger.error(f"API connection failed: {e}. Request: `{do} {data}`.")
 		connection_check()
-	if response.text:
-		try:
-			result = json.loads(response.text)
-		except Exception as e:
-			logger.error(f"API response parsing failed: {e}. Request: `{do} {data}`. Response: `{response.text}`")
-			connection_check()
+	if response:
+		if response.text:
+			try:
+				result = json.loads(response.text)
+			except Exception as e:
+				logger.error(f"API response parsing failed: {e}. Request: `{do} {data}`. Response: `{response.text}`")
+				connection_check()
 	return result
 
 
@@ -509,6 +510,6 @@ async def presence_loop(bot):
 			presence = "Автономный режим"
 			status = discord.Status.idle
 		await bot.change_presence(status=status,
-								  activity=discord.Activity(name=presence,
-								  							type=discord.ActivityType.watching))
+					  activity=discord.Activity(name=presence,
+								    type=discord.ActivityType.watching))
 		await asyncio.sleep(300)
