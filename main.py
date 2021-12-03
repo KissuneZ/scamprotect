@@ -355,10 +355,10 @@ class Info(commands.Cog):
 		ping = round(self.bot.latency * 1000, 2)
 
 		data = lang(ctx)["status_pattern"].format(len(self.bot.guilds), len(self.bot.users),
-										   		  scanner_calls, deleted_messages, self.bot.user,
-										   		  self.bot.user.id, psutil.virtual_memory().percent,
-										   		  psutil.cpu_percent(), up, ping, sys.version.split('(')[0],
-										   		  discord.__version__)
+							  scanner_calls, deleted_messages, self.bot.user,
+							  self.bot.user.id, psutil.virtual_memory().percent,
+							  psutil.cpu_percent(), up, ping, sys.version.split('(')[0],
+							  discord.__version__, version())
 		e = discord.Embed(color=PRIMARY)
 		e.add_field(name=lang(ctx)["bot_status"], value=data)
 		e.set_thumbnail(url="https://media.discordapp.net/attachments/832662675963510827/857631236355522650/logo.png")
