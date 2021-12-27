@@ -57,20 +57,37 @@ languages = {
 		"invite": "{} Добавить бота на сервер: [[Нажми]]({})",
 		"support": "{} Сервер поддержки: [[Присоединиться]]({})",
 		"welcome": "Добро пожаловать!",
-		"help_desc": ">>> {} Вы можете использовать упоминание бота в качестве префикса. Для выполнения команд настройки вам необходимо иметь право «Управлять сервером», а для команд очистки и сканирования «Управлять сообщениями». Что-бы отменить запущеное сканирование, удалите сообщение, выводящее его прогресс. Процесс сканирования может занять до нескольких часов в зависимости от заданого лимита и не может длиться более 4 часов, иначе он будет остановлен принудительно. Не нужно указывать `[]` и `<>` при вызове команды. Данные скобки обозначают необязательный и обязательный аргументы соответственно.",
+		"help_desc": "> {} Вы можете использовать упоминание бота в качестве префикса. Для выполнения команд настройки вам необходимо иметь право «Управлять сервером», а для команд очистки и сканирования «Управлять сообщениями». Что-бы отменить запущеное сканирование, удалите сообщение, выводящее его прогресс. Процесс сканирования может занять до нескольких часов в зависимости от заданого лимита и не может длиться более 4 часов, иначе он будет остановлен принудительно. Не нужно указывать `[]` и `<>` при вызове команды. Данные скобки обозначают необязательный и обязательный аргументы соответственно.",
 		"help_t_info": ":compass: Информация",
 		"help_t_tools": ":tools: Инструменты",
 		"help_t_settings": ":gear: Настройка",
-		"help_info": "`~help` - Выводит данное сообщение.\n`~status` - Техническое состояние бота и его статистика.\n`~invite` - Получить ссылку на добавление бота.\n`~about` - Информация о боте и ссылки на разработчиков.\n`~support` - Сервер поддержки.",
-		"help_tools": "`~clear <limit>` - Очистить N сообщений в текущем канале.\n`~clearall <limit>` - Очистить N сообщений во всех каналах.\n`~scan <limit>` - Просканировать N сообщений в текущем канале.\n`~scanall <limit>` - Просканировать N сообщений во всех каналах.\n`~report <message>` - Пожаловаться на ссылку/сообщение.",
-		"help_settings": "`~prefix <prefix>` - Изменить префикс бота на этом сервере.\n`~enable scan` - Включить защиту.\n`~enable dms` - Включить уведомления в личных сообщениях.\n`~enable notify` - Включить уведомления на сервере.\n`~disable scan` - Выключить защиту.\n`~disable dms` - Выключить уведомления в личных сообщениях.\n`~disable notify` - Выключить уведомления на сервере.\n`~notify remove` - Отключить отправку уведомлений в отдельный канал.\n`~notify <channel>` - Установить канал для отправки уведомлений.\n`~lang <ru/en>` - Установить язык бота на этом сервере.",
+		"help_info": """`~help` - Выводит данное сообщение.
+`~status` - Техническое состояние бота и его статистика.
+`~invite` - Получить ссылку на добавление бота.
+`~about` - Информация о боте и ссылки на разработчиков.
+`~support` - Сервер поддержки.""",
+		"help_tools": """`~clear <limit>` - Очистить N сообщений в текущем канале.
+`~clearall <limit>` - Очистить N сообщений во всех каналах.
+`~scan <limit>` - Просканировать N сообщений в текущем канале.
+`~scanall <limit>` - Просканировать N сообщений во всех каналах.
+`~report <message>` - Сообщить об ошибке.""",
+		"help_settings": """`~prefix <prefix>` - Изменить префикс бота на этом сервере.
+`~enable scan` - Включить защиту.
+`~enable dms` - Включить уведомления в личных сообщениях.
+`~enable notify` - Включить уведомления на сервере.
+`~disable scan` - Выключить защиту.
+`~disable dms` - Выключить уведомления в личных сообщениях.
+`~disable notify` - Выключить уведомления на сервере.
+`~notify remove` - Отключить отправку уведомлений в отдельный канал.
+`~notify <channel>` - Установить канал для отправки уведомлений.
+`~lang <ru/en>` - Установить язык бота на этом сервере.""",
 		"perms": {
 			"administrator": "Администратор",
 			"manage_channels": "Управлять каналами",
 			"manage_messages": "Управлять сообщениями",
 			"manage_guild": "Управлять сервером"
 		},
-		"scan_pattern": "{} Сканирование... [{} / {}]",
+		"scan_pattern": "{} Обработка... [{} / {}]",
 		"r_msgtext": "Текст сообщения",
 		"r_etitle": "Заголовок",
 		"r_edesc": "Содержимое",
@@ -142,20 +159,37 @@ languages = {
 		"invite": "{} Invite me to your server: [[Invite]]({})",
 		"support": "{} Support server: [[Join]]({})",
 		"welcome": "Welcome!",
-		"help_desc": ">>> {} You can use the bot mention as command prefix. To execute configuration commands, you need to have the «Manage server», and, for cleaning and scanning commands, «Manage messages» permissions. To stop a running scanner, delete the message showing its progress. The scanning process can take up to several hours depending on the set limit and cannot last more than 4 hours, otherwise it will be stopped forcibly. Don't use `[]` and `<>` while calling the command. These brackets means optional and required arguments, respectively.",
+		"help_desc": "> {} You can use the bot mention as command prefix. To execute configuration commands, you need to have the «Manage server», and, for cleaning and scanning commands, «Manage messages» permissions. To stop a running scanner, delete the message showing its progress. The scanning process can take up to several hours depending on the set limit and cannot last more than 4 hours, otherwise it will be stopped forcibly. Don't use `[]` and `<>` while calling the command. These brackets means optional and required arguments, respectively.",
 		"help_t_info": ":compass: Information",
 		"help_t_tools": ":tools: Tools",
 		"help_t_settings": ":gear: Configuration",
-		"help_info": "`~help` - Shows this message.\n`~status` - Bot status.\n`~invite` - Invite the bot.\n`~about` - About the bot.\n`~support` - Support server.",
-		"help_tools": "`~clear <limit>` - Clear N messages in this channel.\n`~clearall <limit>` - Purge N channels in every channel.\n`~scan <limit>` - Scan N messages in this channel.\n`~scanall <limit>` - Scan N messages in every channel.\n`~report <message>` - Error report.",
-		"help_settings": "`~prefix <prefix>` - Set command prefix for this server.\n`~enable scan` - Enable protection.\n`~enable dms` - Enable DM notifications.\n`~enable notify` - Enable notifications on the server.\n`~disable scan` - Disable protection.\n`~disable dms` - Disable DM notifications.\n`~disable notify` - Disable notifications on the server.\n`~notify remove` - Remove notifications channel.\n`~notify <channel>` - Set notifications channel.\n`~lang <ru/en>` - Set bot language on this server.",
+		"help_info": """`~help` - Shows this message.
+`~status` - Bot status.
+`~invite` - Invite the bot.
+`~about` - About the bot.
+`~support` - Support server.""",
+		"help_tools": """`~clear <limit>` - Clear N messages in this channel.
+`~clearall <limit>` - Purge N channels in every channel.
+`~scan <limit>` - Scan N messages in this channel.
+`~scanall <limit>` - Scan N messages in every channel.
+`~report <message>` - Error report.""",
+		"help_settings": """`~prefix <prefix>` - Set command prefix for this server.
+`~enable scan` - Enable protection.
+`~enable dms` - Enable DM notifications.
+`~enable notify` - Enable notifications on the server.
+`~disable scan` - Disable protection.
+`~disable dms` - Disable DM notifications.
+`~disable notify` - Disable notifications on the server.
+`~notify remove` - Remove notifications channel.
+`~notify <channel>` - Set notifications channel.
+`~lang <ru/en>` - Set bot language on this server.""",
 		"perms": {
 			"administrator": "Administrator",
 			"manage_channels": "Manage channels",
 			"manage_messages": "Manage messages",
 			"manage_guild": "Manage server"
 		},
-		"scan_pattern": "{} Scanning... [{} / {}]",
+		"scan_pattern": "{} Processing... [{} / {}]",
 		"r_msgtext": "Message content",
 		"r_etitle": "Title",
 		"r_edesc": "Description",
