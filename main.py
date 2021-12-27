@@ -128,7 +128,7 @@ class Main(commands.Cog):
 			db = db_read()
 			key = ctx.guild.id
 			if module == "scan":
-				if key in db.get("disabled", []):
+				if key in db.get("disabled"):
 					db["disabled"].remove(key)
 					db_write(db)
 					return await done(ctx, lang(ctx)["prot_on"])
@@ -154,7 +154,7 @@ class Main(commands.Cog):
 			db = db_read()
 			key = ctx.guild.id
 			if module == "scan":
-				if key not in db.get("disabled", []):
+				if key not in db.get("disabled"):
 					db["disabled"].append(key)
 					db_write(db)
 					return await done(ctx, lang(ctx)["prot_off"])
@@ -164,7 +164,7 @@ class Main(commands.Cog):
 					db_write(db)
 					return await done(ctx, lang(ctx)["dms_off"])
 			if module == "notify":
-				if key not in db.get("nodms"):
+				if key not in db.get("dontnotify"):
 					db["dontnotify"].append(key)
 					db_write(db)
 					return await done(ctx, lang(ctx)["notify_off"])
